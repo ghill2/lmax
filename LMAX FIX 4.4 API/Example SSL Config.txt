@@ -1,0 +1,30 @@
+SSL Config for Demo/UAT:
+********************************
+Please note that SSLv3 has been decommissioned for security reasons so you must use
+TLSv1.1 or higher.
+We do not require a particular certificate; a self-generated one can be used:
+
+cert = stunnel.pem
+socket = l:TCP_NODELAY=1
+socket = r:TCP_NODELAY=1
+debug = 7
+
+fips = yes
+
+[Demo-Trading]
+client = yes
+accept = 127.0.0.1:40001
+connect = fix-order.london-demo.lmax.com:443
+sslVersion = TLSv1
+options = NO_SSLv2
+options = NO_SSLv3
+
+[Demo – Market Data]
+client = yes
+accept = 127.0.0.1:40003
+connect = fix-marketdata.london-demo.lmax.com:443
+sslVersion = TLSv1
+options = NO_SSLv2
+options = NO_SSLv3
+
+

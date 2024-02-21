@@ -1,0 +1,2 @@
+8=FIX.4.4|9=235|35=8|49=LMXBD|56=ghill2|34=3|52=20230915-10:37:28.767|1=1649599582|11=a649a9b8-dc79-48f5-a|48=100934|22=8|54=1|37=AACkAgAAAABD0yIu|59=1|44=26614.75|40=2|60=20230915-10:37:28.767|6=0|17=YlLkXgAAAAB5UyUH|527=0|39=0|150=0|14=0|151=1|38=1|10=059
+# an `ExecutionReport` message in response to a `NewOrderSingle` after a market order is `ACCEPTED` on the exchange

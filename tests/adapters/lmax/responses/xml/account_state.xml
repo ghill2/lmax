@@ -1,0 +1,21 @@
+<accountState>
+        <accountId>001</accountId>
+        <balance>8765.72179</balance>
+        <cash>8765.72179</cash>
+        <credit>0</credit>
+        <totalCollateralizedCredit>0</totalCollateralizedCredit>
+        <usedCollateralizedCredit>0</usedCollateralizedCredit>
+        <availableFunds>7987.57384</availableFunds>
+        <availableToWithdraw>7987.57384</availableToWithdraw>
+        <unrealisedProfitAndLoss>10.52065</unrealisedProfitAndLoss>
+        <margin>788.6686</margin>
+        <wallets>
+                <wallet>
+                        <currency>GBP</currency>
+                        <balance>8765.72179</balance>
+                        <cash>8765.72179</cash>
+                        <availableToWithdraw>0</availableToWithdraw>
+                </wallet>
+        </wallets>
+        <active>true</active>
+</accountState>

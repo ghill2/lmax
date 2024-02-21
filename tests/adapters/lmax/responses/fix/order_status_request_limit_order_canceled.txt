@@ -1,0 +1,2 @@
+8=FIX.4.4|9=261|35=8|49=LMXBD|56=ghill2|34=4|52=20230915-11:44:25.218|1=1649599582|11=8a20ad80d83d15b0|41=07477cf1-1af7-4005-b|48=100934|22=8|54=1|37=AACkAgAAAABD02aU|59=1|44=26489.94|40=2|60=20230915-11:44:25.198|6=0|17=0|527=0|790=dd8c65ff439b3e77|39=4|150=I|14=0|151=0|38=1|10=011
+# An `ExecutionReport` message sent in response to a `OrderStatusRequest` message for a limit order that was canceled

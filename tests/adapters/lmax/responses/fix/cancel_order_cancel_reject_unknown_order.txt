@@ -1,0 +1,2 @@
+8=FIX.4.4|9=140|35=9|49=LMXBD|56=ghill2|34=4|52=20230915-11:27:08.967|1=1649599582|11=e73b63746e99a822|41=unknown|37=NONE|39=8|102=1|434=1|58=UNKNOWN_ORDER|10=060
+`OrderCancelReject` message sent in respose to a `OrderCancelRequest` message when attempting to canceling an order

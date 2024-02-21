@@ -1,0 +1,1039 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LMAX Broker FIX Market Data API</title>
+<style type="text/css">
+  body
+  {
+  font-family: Arial, Helvetica, sans-serif;
+  }
+
+  p
+  {
+  margin-left: 2%;
+  }
+
+  h1
+  {
+  border-top: 1px solid black;
+  }
+
+  h2
+  {
+  margin-left: 0.5%;
+  text-decoration: underline;
+  }
+
+  h3
+  {
+  margin-left: 1%;
+  }
+
+  table.default-table
+  {
+  border-collapse: collapse;
+  width: 94%;
+  border:
+  solid black 1px;
+  margin: 0px 3%;
+  }
+
+  table.default-table th
+  {
+  background: #6699dd;
+  color:
+  white;
+  border: solid black 1px;
+  }
+
+  table.default-table td
+  {
+  border: solid
+  black 1px;
+  }
+
+  .tag-column
+  {
+  width: 5em;
+  text-align: center;
+  }
+
+  .tag-name-column
+  {
+  width: 15em;
+  text-align: left;
+  }
+
+  .tag-required-column
+  {
+  width: 8em;
+  text-align: center;
+  }
+
+  .datatype-column
+  {
+  width: 8em;
+  text-align: center;
+  }
+
+  .tag-description-column
+  {
+  white-space:pre-wrap;
+  }
+
+  .component-block-reference-column
+  {
+  padding-left: 10px;
+  }
+  
+  .release-version-column,.release-date-column
+  {
+  text-align: center
+  }              
+</style>
+</head>
+<body>
+<h1>Release Notes</h1>
+<table class="default-table">
+<tr>
+<th>Version</th><th>Changes</th><th>Production Release Date</th>
+</tr>
+<tr>
+<td class="release-version-column">247</td><td>Updated description for MarketDataRequest and MarketDataSnapshotFullRefresh</td><td class="release-date-column">13 Nov 2019</td>
+</tr>
+<tr>
+<td class="release-version-column">246</td><td>Remove environment specific details</td><td class="release-date-column">05 Oct 2018</td>
+</tr>
+<tr>
+<td class="release-version-column">208</td><td>Update connection details</td><td class="release-date-column">04 May 2017</td>
+</tr>
+<tr>
+<td class="release-version-column">103</td><td>Add section on compatabililty to documentation.</td><td class="release-date-column">15 December 2012</td>
+</tr>
+<tr>
+<td class="release-version-column">98</td><td>Increase maximum inbound message size to 8192 bytes.</td><td class="release-date-column">29 September 2012</td>
+</tr>
+</table>
+<p>LMAX reserves the right to change the specification of the FIX interface.</p>
+<h1>Introduction</h1>
+<h2>Overview</h2>
+<p>LMAX operates FIX Market Data Gateways which allow users to receive
+                  Market Data using standard FIX 4.4 messages.</p>
+<h3>Fix Session Connectivity Schedule</h3>
+<p>FIX sessions connected to the LMAX FIX Market Data Gateways operate to the following daily schedule.</p>
+<table class="default-table">
+<tr>
+<th align="left">Open for connection</th><td>17:02:00 America/New York</td>
+</tr>
+<tr>
+<th align="left">Connection closed</th><td>17:02:00 America/New York</td>
+</tr>
+</table>
+<p>Connectivity is available every day of the week, except during scheduled maintenance periods.</p>
+<h2>Messages sizes</h2>
+<h3>Inbound message size limit</h3>
+<p>The LMAX FIX Trading Gateways have a maximum inbound message limit of 8192 bytes. The
+                a message is received which exceeds this size, the client will be logged off.</p>
+<h3>Outbound message size</h3>
+<p>The LMAX FIX Trading Gateway will never publish messages greater than 8192 bytes.</p>
+<h2>Recovery</h2>
+<p>The LMAX FIX Market Data Gateways do not support any FIX message recovery.</p>
+<p>In the event of the LMAX FIX Market Data Gateway requesting a message
+					re-send, the resent messages will be ignored.</p>
+<h2>Session Resetting</h2>
+<p>LMAX expect a reset of Sequence Numbers on all logins to the LMAX FIX Market Data Gateway. Sequence Numbers are not persisted for new logons.</p>
+<p>To reset a FIX Session the client must login with the tag 141 (ResetSeqNumFlag) set to 'Y'.</p>
+<h2>Compatibility</h2>
+<p>LMAX aims to maximise compatibility by using standard FIX messages, tags and usage conventions 
+                wherever possible.</p>
+<p>Periodically, LMAX updates it's FIX specifications in response to changes to the core trading
+                application. Usually these changes are to support additional features and wherever possible this
+                will be achieved through the use of additional messages, tags in existing messages
+                or tag values in existing tags. In order to minimise the impact of these sort of changes,
+                LMAX recommends that the client application accepts messages with unrecognised tags and ignores those
+                tags which it cannot interpret.</p>
+<p>LMAX will all endeavor to contact clients prior to change to the FIX API, particularly in the case
+                where a change is breaking (i.e. not additive in nature).</p>
+<h1>Messages</h1>
+<h2>Supported Messages</h2>
+<p>LMAX supports the following FIX message types.</p>
+<table class="default-table" id="messages-table">
+<tr>
+<th>Type</th><th>Name</th><th>Description</th>
+</tr>
+<tr>
+<td align="center"><a href="#Heartbeat">0</a></td><td><a href="#Heartbeat">Heartbeat</a></td><td class="">Message sent during quite intervals on the connection to ensure that connection is still alive.</td>
+</tr>
+<tr>
+<td align="center"><a href="#TestRequest">1</a></td><td><a href="#TestRequest">TestRequest</a></td><td class="">Message used to request a HeartBeat from the counterparty to allow round trip testing of the connection.</td>
+</tr>
+<tr>
+<td align="center"><a href="#ResendRequest">2</a></td><td><a href="#ResendRequest">ResendRequest</a></td><td class="">Message used to request a replay of messages from the counter party.</td>
+</tr>
+<tr>
+<td align="center"><a href="#Reject">3</a></td><td><a href="#Reject">Reject</a></td><td class="">Sent in response to a message which is structurally invalid (i.e. invalid or missing tag or ill-formed tag-value).</td>
+</tr>
+<tr>
+<td align="center"><a href="#SequenceReset">4</a></td><td><a href="#SequenceReset">SequenceReset</a></td><td class="">SequenceReset.</td>
+</tr>
+<tr>
+<td align="center"><a href="#Logout">5</a></td><td><a href="#Logout">Logout</a></td><td class="">Message used to terminate a FIX connection. Can be sent by the client or the LMAX FIX Gateway.</td>
+</tr>
+<tr>
+<td align="center"><a href="#Logon">A</a></td><td><a href="#Logon">Logon</a></td><td class="">Message used to establish a connection between a client and the LMAX FIX Gateway.</td>
+</tr>
+<tr>
+<td align="center"><a href="#MarketDataRequest">V</a></td><td><a href="#MarketDataRequest">MarketDataRequest</a></td><td class="">Message sent by the client to request market data.</td>
+</tr>
+<tr>
+<td align="center"><a href="#MarketDataSnapshotFullRefresh">W</a></td><td><a href="#MarketDataSnapshotFullRefresh">MarketDataSnapshotFullRefresh</a></td><td class="">Message sent by LMAX containing changes in market data</td>
+</tr>
+<tr>
+<td align="center"><a href="#MarketDataRequestReject">Y</a></td><td><a href="#MarketDataRequestReject">MarketDataRequestReject</a></td><td class="">Message sent in response to an invalid Market Data Request.</td>
+</tr>
+</table>
+<h2>Standard Message Components</h2>
+<a name="StandardHeader"></a>
+<h3>StandardHeader</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_8">8</a></td><td class="tag-name-column">BeginString</td><td class="tag-description-column">The FIX version number identifier. Always 'FIX.4.4'</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_9">9</a></td><td class="tag-name-column">BodyLength</td><td class="tag-description-column">Length of the FIX Message.</td><td class="tag-required-column">Y</td><td class="datatype-column">Length</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_35">35</a></td><td class="tag-name-column">MsgType</td><td class="tag-description-column">The type of the message.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_49">49</a></td><td class="tag-name-column">SenderCompID</td><td class="tag-description-column">Identifier for the sender of the message.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_56">56</a></td><td class="tag-name-column">TargetCompID</td><td class="tag-description-column">Identifier for the receiver of the message.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_34">34</a></td><td class="tag-name-column">MsgSeqNum</td><td class="tag-description-column">The unique sequence number for the message within current FIX session.</td><td class="tag-required-column">Y</td><td class="datatype-column">SeqNum</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_43">43</a></td><td class="tag-name-column">PossDupFlag</td><td class="tag-description-column">Always required for retransmitted messages, whether prompted by the sending system or as the result of a resend request. Set to 'Y' if this is a resent message.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Boolean</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_97">97</a></td><td class="tag-name-column">PossResend</td><td class="tag-description-column">Never used by LMAX.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Boolean</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_52">52</a></td><td class="tag-name-column">SendingTime</td><td class="tag-description-column">Time message was sent.
+</td><td class="tag-required-column">Y</td><td class="datatype-column">UTCTimestamp</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_122">122</a></td><td class="tag-name-column">OrigSendingTime</td><td class="tag-description-column">Timestamp when message was originally sent. Required for message resent as a result of a ResendRequest.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">UTCTimestamp</td>
+</tr>
+</table>
+<a name="StandardTrailer"></a>
+<h3>StandardTrailer</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_10">10</a></td><td class="tag-name-column">CheckSum</td><td class="tag-description-column">Checksum for message contents.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+</table>
+<a name="Instrument"></a>
+<h3>Instrument</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_48">48</a></td><td class="tag-name-column">SecurityID</td><td class="tag-description-column">Must contain the LMAX orderbook id.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_22">22</a></td><td class="tag-name-column">SecurityIDSource</td><td class="tag-description-column">Must contain the value '8' (Exchange Symbol)</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+</table>
+<a name="InstrmtMDReqGrp"></a>
+<h3>InstrmtMDReqGrp</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_146">146</a></td><td class="tag-name-column">NoRelatedSym</td><td class="tag-description-column">Specifies the number of repeating symbols specified.
+  </td><td class="tag-required-column">Y</td><td class="datatype-column">NumInGroup</td>
+</tr>
+<tr>
+<td colspan="3"><a href="#Instrument">Instrument</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="MDReqGrp"></a>
+<h3>MDReqGrp</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_267">267</a></td><td class="tag-name-column">NoMDEntryTypes</td><td class="tag-description-column">Number of MDEntryType (269) fields requested.
+      </td><td class="tag-required-column">Y</td><td class="datatype-column">NumInGroup</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_269">269</a></td><td class="tag-name-column">MDEntryType</td><td class="tag-description-column">Type  Market Data entry.
+LMAX supported values:
+  0 = Bid
+  1 = Offer
+  
+LMAX only allows subscription to both bid and ask at the same time. If only 0 or 1 is specified individually for a Market Data Request, then the request will be rejected.
+</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+</table>
+<a name="MDFullGrp"></a>
+<h3>MDFullGrp</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_268">268</a></td><td class="tag-name-column">NoMDEntries</td><td class="tag-description-column">Number of entries in Market Data message.
+      </td><td class="tag-required-column">Y</td><td class="datatype-column">NumInGroup</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_269">269</a></td><td class="tag-name-column">MDEntryType</td><td class="tag-description-column">Type  Market Data entry.
+LMAX supported values:
+  0 = Bid
+  1 = Offer
+</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_270">270</a></td><td class="tag-name-column">MDEntryPx</td><td class="tag-description-column">Price of the Market Data Entry.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Price</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_271">271</a></td><td class="tag-name-column">MDEntrySize</td><td class="tag-description-column">Quantity or volume represented by the Market Data Entry.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Qty</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_272">272</a></td><td class="tag-name-column">MDEntryDate</td><td class="tag-description-column">Date of Market Data Entry. This tag will only be present on the first entry in the repeating group</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">UTCDateOnly</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_273">273</a></td><td class="tag-name-column">MDEntryTime</td><td class="tag-description-column">Time of Market Data Entry. This tag will only be present on the first entry in the repeating group</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">UTCTimeOnly</td>
+</tr>
+</table>
+<h2>Message Descriptions</h2>
+<a name="Heartbeat"></a>
+<h3>Heartbeat</h3>
+<p>
+<Description>Message sent during quite intervals on the connection to ensure that connection is still alive.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            0</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_112">112</a></td><td class="tag-name-column">TestReqID</td><td class="tag-description-column">Required when the heartbeat is the result of a Test Request message.
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="TestRequest"></a>
+<h3>TestRequest</h3>
+<p>
+<Description>Message used to request a HeartBeat from the counterparty to allow round testing trip of the connection.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            1</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_112">112</a></td><td class="tag-name-column">TestReqID</td><td class="tag-description-column">Identifier included in Test Request message to be returned in resulting Heartbeat
+</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="ResendRequest"></a>
+<h3>ResendRequest</h3>
+<p>
+<Description>Message used to request a replay of messages from the counter party.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            2</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_7">7</a></td><td class="tag-name-column">BeginSeqNo</td><td class="tag-description-column">Message sequence number of first message in range to be resent</td><td class="tag-required-column">Y</td><td class="datatype-column">SeqNum</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_16">16</a></td><td class="tag-name-column">EndSeqNo</td><td class="tag-description-column">Message sequence number of last message in range to be resent.  If request is for a single message BeginSeqNo (7) = EndSeqNo.  If request is for all messages subsequent to a particular message, EndSeqNo = &ldquo;0&rdquo; (representing infinity).</td><td class="tag-required-column">Y</td><td class="datatype-column">SeqNum</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="Reject"></a>
+<h3>Reject</h3>
+<p>
+<Description>Sent in response to a message which is structurally invalid (i.e. invalid or missing tag or ill-formed tag-value).</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            3</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_45">45</a></td><td class="tag-name-column">RefSeqNum</td><td class="tag-description-column">MsgSeqNum of rejected message
+</td><td class="tag-required-column">Y</td><td class="datatype-column">SeqNum</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_371">371</a></td><td class="tag-name-column">RefTagID</td><td class="tag-description-column">The tag number of the FIX field being referenced.
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_372">372</a></td><td class="tag-name-column">RefMsgType</td><td class="tag-description-column">The MsgType of the FIX message being referenced.
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_373">373</a></td><td class="tag-name-column">SessionRejectReason</td><td class="tag-description-column">Code to identify reason for a session-level Reject message.
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_58">58</a></td><td class="tag-name-column">Text</td><td class="tag-description-column">Where possible, message to explain reason for rejection
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="SequenceReset"></a>
+<h3>SequenceReset</h3>
+<p>
+<Description>SequenceReset</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            4</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_123">123</a></td><td class="tag-name-column">GapFillFlag</td><td class="tag-description-column">Indicates that the Sequence Reset message is replacing administrative or application messages which will not be resent.
+Valid values:
+  Y = Gap Fill message, MsgSeqNum field valid
+  N = Sequence Reset, ignore MsgSeqNum
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Boolean</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_36">36</a></td><td class="tag-name-column">NewSeqNo</td><td class="tag-description-column">New sequence number
+</td><td class="tag-required-column">Y</td><td class="datatype-column">SeqNum</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="Logout"></a>
+<h3>Logout</h3>
+<p>
+<Description>Message used to terminate a FIX connection. Can be sent by the client or the LMAX FIX Gateway.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            5</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_58">58</a></td><td class="tag-name-column">Text</td><td class="tag-description-column">If LMAX logs out a client this may contain a text description for the reason for the logout.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="Logon"></a>
+<h3>Logon</h3>
+<p>
+<Description>
+            The Logon message must be the first message Client sends after establishing a TCP connection on the port agreed upon with LMAX.
+            Client must wait for a Logon from LMAX before sending other messages and beginning gap fill operations.
+        </Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            A</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_98">98</a></td><td class="tag-name-column">EncryptMethod</td><td class="tag-description-column">Always '0' - None
+</td><td class="tag-required-column">Y</td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_108">108</a></td><td class="tag-name-column">HeartBtInt</td><td class="tag-description-column">The maximum time to wait before a Heartbeat message is sent in the absence of other activity on the connection. The same value is used by both parties.
+</td><td class="tag-required-column">Y</td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_141">141</a></td><td class="tag-name-column">ResetSeqNumFlag</td><td class="tag-description-column">Indicates both sides of a FIX session should reset sequence numbers
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Boolean</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_383">383</a></td><td class="tag-name-column">MaxMessageSize</td><td class="tag-description-column">Maximum number of bytes supported for a single message.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Length</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_553">553</a></td><td class="tag-name-column">Username</td><td class="tag-description-column">LMAX username. This is required on the login message sent by the client</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_554">554</a></td><td class="tag-name-column">Password</td><td class="tag-description-column">LMAX Password or passphrase. This is required on the login message sent by the client</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="MarketDataRequest"></a>
+<h3>MarketDataRequest</h3>
+<p>
+<Description>
+            Message sent by the client to request market data.  An individual request can be made for one or more instruments.
+            <br>
+            Clients should rely on the SecurityID (tag 48) to identify the instrument each request is referencing.
+         </Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            V</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_262">262</a></td><td class="tag-name-column">MDReqID</td><td class="tag-description-column">Must be unique, or the ID of previous Market Data Request
+        to disable if SubscriptionRequestType = Disable previous Snapshot +
+        Updates Request (2).
+</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_263">263</a></td><td class="tag-name-column">SubscriptionRequestType</td><td class="tag-description-column">SubcriptionRequestType indicates to the other party what type of response is expected.
+LMAX supported values:
+  1 - Snapshot + Updates (Subscribe)
+  2 - Disable previous Snapshot + Updates Request (Unsubscribe)
+
+LMAX does not support
+  0 - Snapshot   
+</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_264">264</a></td><td class="tag-name-column">MarketDepth</td><td class="tag-description-column">Depth of market for Book Snapshot
+LMAX supported values:
+  0 = Full Depth (LMAX supports a maximum of 20 levels of depth)
+  1 = Top of Book
+  2-20 = Report best N price tiers of data, up to 20 levels.
+</td><td class="tag-required-column">Y</td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_265">265</a></td><td class="tag-name-column">MDUpdateType</td><td class="tag-description-column">Required if SubscriptionRequestType = Snapshot + Updates (1).
+LMAX supported values
+  0 - Full Refresh.
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_266">266</a></td><td class="tag-name-column">AggregatedBook</td><td class="tag-description-column">Specifies whether or not book entries should be aggregated.
+      Valid values:
+      Y = one book entry per side per price
+      (only aggregated book entries are supported)
+    </td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Boolean</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#MDReqGrp">MDReqGrp</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#InstrmtMDReqGrp">InstrmtMDReqGrp</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="MarketDataSnapshotFullRefresh"></a>
+<h3>MarketDataSnapshotFullRefresh</h3>
+<p>
+<Description>
+            Message received by the client showing the current order book.
+            <br>
+            Clients should rely on the SecurityID (tag 48) to identify the instrument each update is referencing.
+        </Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            W</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_262">262</a></td><td class="tag-name-column">MDReqID</td><td class="tag-description-column">Conditionally required if this message is in response to
+    a Market Data Request.
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#Instrument">Instrument</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#MDFullGrp">MDFullGrp</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="MarketDataRequestReject"></a>
+<h3>MarketDataRequestReject</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            Y</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_262">262</a></td><td class="tag-name-column">MDReqID</td><td class="tag-description-column">Must refer to the MDReqID of the request.
+  </td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_281">281</a></td><td class="tag-name-column">MDReqRejReason</td><td class="tag-description-column">Reason for the rejection of a Market Data request.
+LMAX supported values:
+  0 = Unknown symbol
+  1 = Duplicate MDReqID
+  4 = Unsupported SubscriptionRequestType
+  5 = Unsupported MarketDepth
+  6 = Unsupported MDUpdateType
+  8 = Unsupported MDEntryType</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_58">58</a></td><td class="tag-name-column">Text</td><td class="tag-description-column">Free format text string (Note: this field does not have a specified maximum length)
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<h2>Tags</h2>
+<table class="default-table" id="tags-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th class="datatype-column">Type</th><th>Description</th>
+</tr>
+<tr id="tag_1">
+<td class="tag-column">1</td><td class="tag-name-column">Account</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Account mnemonic as agreed between buy and sell sides, e.g. broker and institution or investor/intermediary and fund manager.
+</td>
+</tr>
+<tr id="tag_6">
+<td class="tag-column">6</td><td class="tag-name-column">AvgPx</td><td class="datatype-column"><a href="#datatype_Price">Price</a></td><td class="tag-description-column">Not supported by LMAX - always 0</td>
+</tr>
+<tr id="tag_7">
+<td class="tag-column">7</td><td class="tag-name-column">BeginSeqNo</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">Message sequence number of first message in range to be resent</td>
+</tr>
+<tr id="tag_8">
+<td class="tag-column">8</td><td class="tag-name-column">BeginString</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Identifies beginning of new message and protocol version. ALWAYS FIRST FIELD IN MESSAGE. (Always unencrypted).
+
+Valid values:
+ * FIX.4.4</td>
+</tr>
+<tr id="tag_9">
+<td class="tag-column">9</td><td class="tag-name-column">BodyLength</td><td class="datatype-column"><a href="#datatype_Length">Length</a></td><td class="tag-description-column">Message length, in bytes, forward to the CheckSum field. ALWAYS SECOND FIELD IN MESSAGE. (Always unencrypted)</td>
+</tr>
+<tr id="tag_10">
+<td class="tag-column">10</td><td class="tag-name-column">CheckSum</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Three byte, simple checksum  (see Volume 2: &ldquo;Checksum Calculation&rdquo; for description). ALWAYS LAST FIELD IN MESSAGE; i.e. serves, with the trailing &lt;SOH&gt;, as the end-of-message delimiter.  Always defined as three characters. (Always unencrypted)</td>
+</tr>
+<tr id="tag_16">
+<td class="tag-column">16</td><td class="tag-name-column">EndSeqNo</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">Message sequence number of last message in range to be resent.  If request is for a single message BeginSeqNo (7) = EndSeqNo.  If request is for all messages subsequent to a particular message, EndSeqNo = &ldquo;0&rdquo; (representing infinity).</td>
+</tr>
+<tr id="tag_22">
+<td class="tag-column">22</td><td class="tag-name-column">SecurityIDSource</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Identifies class or source of the SecurityID (48) value.  Required if SecurityID is specified.
+LMAX Supported values are:
+  8 = Exchange Symbol</td>
+</tr>
+<tr id="tag_34">
+<td class="tag-column">34</td><td class="tag-name-column">MsgSeqNum</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">Integer message sequence number.</td>
+</tr>
+<tr id="tag_35">
+<td class="tag-column">35</td><td class="tag-name-column">MsgType</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Defines message type    ALWAYS THIRD FIELD IN MESSAGE. (Always unencrypted)
+Valid values:  *** Note the use of lower case letters ***
+  0 = Heartbeat
+  1 = Test Request
+  2 = Resend Request
+  3 = Reject
+  4 = Sequence Reset
+  5 = Logout
+  A = Logon
+  V = Market Data Request
+  W = Market Data-Snapshot/Full Refresh
+  Y = Market Data Request Reject</td>
+</tr>
+<tr id="tag_36">
+<td class="tag-column">36</td><td class="tag-name-column">NewSeqNo</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">New sequence number
+</td>
+</tr>
+<tr id="tag_43">
+<td class="tag-column">43</td><td class="tag-name-column">PossDupFlag</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Indicates possible retransmission of message with this sequence number
+Valid values:
+  Y = Possible duplicate
+  N = Original transmission
+</td>
+</tr>
+<tr id="tag_45">
+<td class="tag-column">45</td><td class="tag-name-column">RefSeqNum</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">Reference message sequence number 
+</td>
+</tr>
+<tr id="tag_48">
+<td class="tag-column">48</td><td class="tag-name-column">SecurityID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">LMAX Security identifier. Requires SecurityIDSource=8. 
+</td>
+</tr>
+<tr id="tag_49">
+<td class="tag-column">49</td><td class="tag-name-column">SenderCompID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Assigned value used to identify firm sending message.
+</td>
+</tr>
+<tr id="tag_52">
+<td class="tag-column">52</td><td class="tag-name-column">SendingTime</td><td class="datatype-column"><a href="#datatype_UTCTimestamp">UTCTimestamp</a></td><td class="tag-description-column">Time of message transmission (always expressed in UTC (Universal Time Coordinated, also known as &ldquo;GMT&rdquo;)
+</td>
+</tr>
+<tr id="tag_56">
+<td class="tag-column">56</td><td class="tag-name-column">TargetCompID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Assigned value used to identify receiving firm.
+</td>
+</tr>
+<tr id="tag_58">
+<td class="tag-column">58</td><td class="tag-name-column">Text</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Free format text string (Note: this field does not have a specified maximum length)
+</td>
+</tr>
+<tr id="tag_89">
+<td class="tag-column">89</td><td class="tag-name-column">Signature</td><td class="datatype-column"><a href="#datatype_data">data</a></td><td class="tag-description-column">Electronic signature
+</td>
+</tr>
+<tr id="tag_93">
+<td class="tag-column">93</td><td class="tag-name-column">SignatureLength</td><td class="datatype-column"><a href="#datatype_Length">Length</a></td><td class="tag-description-column">Number of bytes in signature field.
+</td>
+</tr>
+<tr id="tag_95">
+<td class="tag-column">95</td><td class="tag-name-column">RawDataLength</td><td class="datatype-column"><a href="#datatype_Length">Length</a></td><td class="tag-description-column">Number of bytes in raw data field.
+</td>
+</tr>
+<tr id="tag_96">
+<td class="tag-column">96</td><td class="tag-name-column">RawData</td><td class="datatype-column"><a href="#datatype_data">data</a></td><td class="tag-description-column">Unformatted raw data, can include bitmaps, word processor documents, etc.
+</td>
+</tr>
+<tr id="tag_97">
+<td class="tag-column">97</td><td class="tag-name-column">PossResend</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Indicates that message may contain information that has been sent under another sequence number.
+Valid Values:
+ Y=Possible resend
+ N=Original transmission
+ 
+LMAX will never populate this tag with any value other than 'N' on messages sent by LMAX.
+LMAX will ignore this tag on any messages received by LMAX and the treat the message as having been sent with PossResend='N'.
+</td>
+</tr>
+<tr id="tag_98">
+<td class="tag-column">98</td><td class="tag-name-column">EncryptMethod</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Method of encryption.
+Valid values:
+  0 = None / other
+
+LMAX does not support encryption at the FIX layer. All messages are sent over an SSL encrypted connection. Supported values:</td>
+</tr>
+<tr id="tag_108">
+<td class="tag-column">108</td><td class="tag-name-column">HeartBtInt</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Heartbeat interval (seconds) 
+</td>
+</tr>
+<tr id="tag_112">
+<td class="tag-column">112</td><td class="tag-name-column">TestReqID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Identifier included in Test Request message to be returned in resulting Heartbeat
+</td>
+</tr>
+<tr id="tag_122">
+<td class="tag-column">122</td><td class="tag-name-column">OrigSendingTime</td><td class="datatype-column"><a href="#datatype_UTCTimestamp">UTCTimestamp</a></td><td class="tag-description-column">Original time of message transmission (always expressed in UTC (Universal Time Coordinated, also known as &ldquo;GMT&rdquo;) when transmitting orders as the result of a resend request.
+</td>
+</tr>
+<tr id="tag_123">
+<td class="tag-column">123</td><td class="tag-name-column">GapFillFlag</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Indicates that the Sequence Reset message is replacing administrative or application messages which will not be resent.
+Valid values:
+  Y = Gap Fill message, MsgSeqNum field valid
+  N = Sequence Reset, ignore MsgSeqNum
+</td>
+</tr>
+<tr id="tag_141">
+<td class="tag-column">141</td><td class="tag-name-column">ResetSeqNumFlag</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Indicates that the both sides of the FIX session should reset sequence numbers.
+Valid values:
+  Y = Yes, reset sequence numbers
+  N = No
+</td>
+</tr>
+<tr id="tag_146">
+<td class="tag-column">146</td><td class="tag-name-column">NoRelatedSym</td><td class="datatype-column"><a href="#datatype_NumInGroup">NumInGroup</a></td><td class="tag-description-column">Specifies the number of repeating symbols specified.
+  </td>
+</tr>
+<tr id="tag_262">
+<td class="tag-column">262</td><td class="tag-name-column">MDReqID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Unique identifier for Market Data Request. MDReqId is restricted to a maximum of 16 lowercase hexadecimal characters [0123456789abcdef] with no leading 0 characters (this is a positive 64bit number represented in hexadecimal excluding 0).
+      
+Must be unique for all current Market Data Requests. If a new Market Data Request (excluding unsubscribtion requests) is received with the same MDReqId as a current Market Data Request then the new request will be rejected as a duplicate.</td>
+</tr>
+<tr id="tag_263">
+<td class="tag-column">263</td><td class="tag-name-column">SubscriptionRequestType</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Subscription Request Type
+  Valid values:
+      0 = Snapshot;
+      1 = Snapshot + Updates (Subscribe);
+      2 = Disable previous Snapshot + Update Request (Unsubscribe);
+</td>
+</tr>
+<tr id="tag_264">
+<td class="tag-column">264</td><td class="tag-name-column">MarketDepth</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Depth of market for Book Snapshot
+LMAX supported values:
+  0 = Full Depth (LMAX supports a maximum of 20 levels of depth)
+  1 = Top of Book
+  2-20 = Report best N price tiers of data, up to 20 levels.
+</td>
+</tr>
+<tr id="tag_265">
+<td class="tag-column">265</td><td class="tag-name-column">MDUpdateType</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Specifies the type of Market Data update.
+LMAX supported values:
+  0 = Full Refresh
+</td>
+</tr>
+<tr id="tag_266">
+<td class="tag-column">266</td><td class="tag-name-column">AggregatedBook</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Specifies whether or not book entries should be aggregated.
+          Valid values:
+          Y = one book entry per side per price
+          (only aggregated book entries are supported)
+      </td>
+</tr>
+<tr id="tag_267">
+<td class="tag-column">267</td><td class="tag-name-column">NoMDEntryTypes</td><td class="datatype-column"><a href="#datatype_NumInGroup">NumInGroup</a></td><td class="tag-description-column">Number of MDEntryType (269) fields requested.
+      </td>
+</tr>
+<tr id="tag_268">
+<td class="tag-column">268</td><td class="tag-name-column">NoMDEntries</td><td class="datatype-column"><a href="#datatype_NumInGroup">NumInGroup</a></td><td class="tag-description-column">Number of entries in Market Data message.
+      </td>
+</tr>
+<tr id="tag_269">
+<td class="tag-column">269</td><td class="tag-name-column">MDEntryType</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Type  Market Data entry.
+LMAX supported values:
+  0 = Bid
+  1 = Offer
+</td>
+</tr>
+<tr id="tag_270">
+<td class="tag-column">270</td><td class="tag-name-column">MDEntryPx</td><td class="datatype-column"><a href="#datatype_Price">Price</a></td><td class="tag-description-column">Price of the Market Data Entry.</td>
+</tr>
+<tr id="tag_271">
+<td class="tag-column">271</td><td class="tag-name-column">MDEntrySize</td><td class="datatype-column"><a href="#datatype_Qty">Qty</a></td><td class="tag-description-column">Quantity or volume represented by the Market Data Entry.</td>
+</tr>
+<tr id="tag_272">
+<td class="tag-column">272</td><td class="tag-name-column">MDEntryDate</td><td class="datatype-column"><a href="#datatype_UTCDateOnly">UTCDateOnly</a></td><td class="tag-description-column">Date of Market Data Entry.</td>
+</tr>
+<tr id="tag_273">
+<td class="tag-column">273</td><td class="tag-name-column">MDEntryTime</td><td class="datatype-column"><a href="#datatype_UTCTimeOnly">UTCTimeOnly</a></td><td class="tag-description-column">Time of Market Data Entry.</td>
+</tr>
+<tr id="tag_281">
+<td class="tag-column">281</td><td class="tag-name-column">MDReqRejReason</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Reason for the rejection of a Market Data request.
+Valid values:
+  0 = Unknown symbol
+  1 = Duplicate MDReqID
+  2 = Insufficient Bandwidth
+  3 = Insufficient Permissions
+  4 = Unsupported SubscriptionRequestType
+  5 = Unsupported MarketDepth
+  6 = Unsupported MDUpdateType
+  7 = Unsupported AggregatedBook
+  8 = Unsupported MDEntryType
+  9 = Unsupported TradingSessionID
+  A = Unsupported Scope
+  B = Unsupported OpenCloseSettleFlag
+  C = Unsupported MDImplicitDelete</td>
+</tr>
+<tr id="tag_354">
+<td class="tag-column">354</td><td class="tag-name-column">EncodedTextLen</td><td class="datatype-column"><a href="#datatype_Length">Length</a></td><td class="tag-description-column">Unused by LMAX. Byte length of encoded (non-ASCII characters) EncodedText (355) field.</td>
+</tr>
+<tr id="tag_355">
+<td class="tag-column">355</td><td class="tag-name-column">EncodedText</td><td class="datatype-column"><a href="#datatype_data">data</a></td><td class="tag-description-column">Unused by LMAX. Encoded (non-ASCII characters) representation of the Text (58) field in the encoded format specified via the MessageEncoding (347) field. If used, the ASCII (English) representation should also be specified in the Text field.</td>
+</tr>
+<tr id="tag_371">
+<td class="tag-column">371</td><td class="tag-name-column">RefTagID</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">The tag number of the FIX field being referenced.
+</td>
+</tr>
+<tr id="tag_372">
+<td class="tag-column">372</td><td class="tag-name-column">RefMsgType</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">The MsgType (35) of the FIX message being referenced.
+</td>
+</tr>
+<tr id="tag_373">
+<td class="tag-column">373</td><td class="tag-name-column">SessionRejectReason</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Code to identify reason for a session-level Reject message.
+Valid values:
+  0 = Invalid tag number
+  1 = Required tag missing
+  2 = Tag not defined for this message type
+  3 = Undefined Tag
+  4 = Tag specified without a value
+  5 = Value is incorrect (out of range) for this tag
+  6 = Incorrect data format for value
+  7 = Decryption problem
+  8 = Signature problem
+  9 = CompID problem
+  10 = SendingTime accuracy problem
+  11 = Invalid MsgType
+  12 = XML Validation error
+  13 = Tag appears more than once
+  14 = Tag specified out of required order 
+  15 = Repeating group fields out of order
+  16 = Incorrect NumInGroup count for repeating group
+  17 = Non &ldquo;data&rdquo; value includes field delimiter (SOH character) 
+  99 = Other
+</td>
+</tr>
+<tr id="tag_383">
+<td class="tag-column">383</td><td class="tag-name-column">MaxMessageSize</td><td class="datatype-column"><a href="#datatype_Length">Length</a></td><td class="tag-description-column">Maximum number of bytes supported for a single message.</td>
+</tr>
+<tr id="tag_384">
+<td class="tag-column">384</td><td class="tag-name-column">NoMsgTypes</td><td class="datatype-column"><a href="#datatype_NumInGroup">NumInGroup</a></td><td class="tag-description-column">Number of MsgTypes (35) in repeating group.
+</td>
+</tr>
+<tr id="tag_385">
+<td class="tag-column">385</td><td class="tag-name-column">MsgDirection</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Specifies the direction of the messsage.
+Valid values:
+S = Send
+R = Receive
+</td>
+</tr>
+<tr id="tag_464">
+<td class="tag-column">464</td><td class="tag-name-column">TestMessageIndicator</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Not supported by LMAX.</td>
+</tr>
+<tr id="tag_553">
+<td class="tag-column">553</td><td class="tag-name-column">Username</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">LMAX username. <b xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">This is required on the login message sent by the client</b></td>
+</tr>
+<tr id="tag_554">
+<td class="tag-column">554</td><td class="tag-name-column">Password</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">LMAX Password or passphrase. <b>This is required on the login message sent by the client</b></td>
+</tr>
+<tr id="tag_789">
+<td class="tag-column">789</td><td class="tag-name-column">NextExpectedMsgSeqNum</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">Not supported by LMAX.
+</td>
+</tr>
+</table>
+<h2>Data Types</h2>
+<table class="default-table" id="data-types-table">
+<tr>
+<th class="datatype-column">Data Type</th><th class="datatype-description-column">Description</th>
+</tr>
+<tr id="datatype_Boolean">
+<td class="datatype-column">Boolean</td><td class="datatype-description-column">char field containing one of two values: 'Y' = True/Yes 'N' = False/No</td>
+</tr>
+<tr id="datatype_char">
+<td class="datatype-column">char</td><td class="datatype-description-column">Char value, can include any alphanumeric character or punctuation except the delimiter. All char fields are case sensitive (i.e. l != L).</td>
+</tr>
+<tr id="datatype_data">
+<td class="datatype-column">data</td><td class="datatype-description-column">Binary (non-ASCII) data.</td>
+</tr>
+<tr id="datatype_int">
+<td class="datatype-column">int</td><td class="datatype-description-column">Sequence of digits without commas or decimals and optional sign character (ASCII characters - and 0 - 9). The sign character utilizes one byte (i.e. positive int is 99999 while negative int is -99999). Note that int values may contain leading zeros (e.g. 00023 = 23).</td>
+</tr>
+<tr id="datatype_Length">
+<td class="datatype-column">Length</td><td class="datatype-description-column">Representing the length in bytes. Value must be positive.</td>
+</tr>
+<tr id="datatype_NumInGroup">
+<td class="datatype-column">NumInGroup</td><td class="datatype-description-column">Value that represents the number of repeating values in a group.</td>
+</tr>
+<tr id="datatype_Price">
+<td class="datatype-column">Price</td><td class="datatype-description-column">Value representing a price. Note the number of decimal places may vary.</td>
+</tr>
+<tr id="datatype_Qty">
+<td class="datatype-column">Qty</td><td class="datatype-description-column">Value capable of storing either a whole number (no decimal places) of shares (securities denominated in whole units) or a decimal value containing decimal places for non-share quantity asset classes (securities denominated in fractional units).</td>
+</tr>
+<tr id="datatype_SeqNum">
+<td class="datatype-column">SeqNum</td><td class="datatype-description-column">Representing a message sequence number. Value must be positive.</td>
+</tr>
+<tr id="datatype_String">
+<td class="datatype-column">String</td><td class="datatype-description-column">Alpha-numeric free format strings; can include any character or punctuation except the delimiter. All char fields are case sensitive (i.e. lmax != LMAX).</td>
+</tr>
+<tr id="datatype_UTCTimestamp">
+<td class="datatype-column">UTCTimestamp</td><td class="datatype-description-column">Representing Time/date combination represented in UTC (Universal Time Coordinated, also known as  GMT ) only accepted in this format : YYYYMMDD-HH:MM:SS (whole seconds). For example 20120321-17:15:03.</td>
+</tr>
+</table>
+</body>
+</html>

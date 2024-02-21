@@ -1,0 +1,2 @@
+8=FIX.4.4|9=255|35=8|49=LMXBD|56=ghill2|34=2|52=20230915-10:30:54.284|1=1649599582|11=63015e608d813909|48=100934|22=8|54=1|37=AACkAgAAAABD0vmN|59=1|44=26606.97|40=2|60=20230915-10:30:54.283|6=0|17=YlLkXgAAAAB5UxnX|527=0|38=1|41=f4c70b70-72e2-4883-b|39=4|150=4|14=0|151=0|10=035
+A response sent to a `OrderCancelRequest` message when the client order id is not found on the exchange

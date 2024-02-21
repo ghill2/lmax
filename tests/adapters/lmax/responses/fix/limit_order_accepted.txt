@@ -1,0 +1,2 @@
+8=FIX.4.4|9=235|35=8|49=LMXBD|56=ghill2|34=3|52=20230915-10:30:54.929|1=1649599582|11=a90dd4d7-c530-4add-8|48=100934|22=8|54=1|37=AACkAgAAAABD0xrA|59=1|44=26627.84|40=2|60=20230915-10:30:54.928|6=0|17=YlLkXgAAAAB5Uxne|527=0|39=0|150=0|14=0|151=1|38=1|10=113
+An `ExecutionReport` message sent in response to a `NewOrderSingle` message after an order is `ACCEPTED`

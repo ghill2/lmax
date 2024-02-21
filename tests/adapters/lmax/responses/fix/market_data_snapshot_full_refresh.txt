@@ -1,0 +1,2 @@
+8=FIX.4.4|9=176|35=W|49=LMXBDM|56=ghill2|34=2|52=20230731-11:04:40.161|262=BTC/USD.LMAX|48=100934|22=8|268=2|269=0|270=29384.72|271=4.97|272=20230731|273=11:04:39.440|269=1|270=29389|271=4.95|10=157|
+`MarketDataSnapshotFullRefresh` message sent while the client is subscribed to a data feed

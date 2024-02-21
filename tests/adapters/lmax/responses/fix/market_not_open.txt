@@ -1,0 +1,2 @@
+8=FIX.4.4|9=220|35=8|49=LMXBD|34=2|52=20230921-21:04:10.559|1=1649599582|11=9ccdfb91-eb2c-4d40-8|17=YlLkXgAAAAB5gwSN|527=0|48=4001|22=8|103=4|58=INSTRUMENT_NOT_OPEN|150=8|14=0|151=0|6=0|54=7|60=20230921-21:04:10.559|39=8|37=0|10=097
+# Sent in response to a SubmitOrderSingle message when the market is closed, for example for 5 minutes at 10pm for currencies

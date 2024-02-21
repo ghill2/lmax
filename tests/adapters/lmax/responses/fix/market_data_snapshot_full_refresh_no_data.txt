@@ -1,0 +1,2 @@
+8=FIX.4.4|9=101|35=W|49=LMXBDM|56=ghill2|34=2|52=20230917-12:02:26.106|262=QuoteTick-EUR/USD.LMAX|48=4001|22=8|268=0|10=132
+sent during the weekend for instrument EUR/USD.LMAX where the market is closed

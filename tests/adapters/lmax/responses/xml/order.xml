@@ -1,0 +1,23 @@
+<order>
+    <timeInForce>GoodTilCancelled</timeInForce>
+    <instructionId>C-066</instructionId>
+    <originalInstructionId>C-066</originalInstructionId>
+    <orderId>AACkAgAAAABDQ5Pk</orderId>
+    <accountId>001</accountId>
+    <instrumentId>100934</instrumentId>
+    <price>29203.01</price>
+    <quantity>0.01</quantity>
+    <matchedQuantity>0.01</matchedQuantity>
+    <matchedCost>292.0301</matchedCost>
+    <cancelledQuantity>0</cancelledQuantity>
+    <timestamp>2023-08-15T17:13:02</timestamp>
+    <orderType>STOP_COMPOUND_PRICE_LIMIT</orderType>
+    <openQuantity>0.01</openQuantity>
+    <openCost>292.0301</openCost>
+    <cumulativeCost>292.0301</cumulativeCost>
+    <commission>3</commission>
+    <stopReferencePrice>29203.01</stopReferencePrice>
+    <stopLossOffset/>
+    <stopProfitOffset/>
+    <workingState>UNKNOWN</workingState>
+</order>

@@ -1,0 +1,2 @@
+8=FIX.4.4|9=228|35=8|49=LMXBD|56=ghill2|34=2|52=20230915-11:02:06.115|1=1649599582|11=edf98a7c-e369-41b8-8|17=YlLkXgAAAAB5U0sc|527=0|48=100934|22=8|103=0|58=MAXIMUM_POSITION_EXCEEDED|150=8|14=0|151=0|6=0|54=7|60=20230915-11:02:06.115|39=8|37=0|10=225
+# An `ExecutionReport` message sent in response to a market order with an invalid quantity

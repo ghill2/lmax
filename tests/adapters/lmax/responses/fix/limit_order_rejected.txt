@@ -1,0 +1,2 @@
+8=FIX.4.4|9=232|35=8|49=LMXBD|56=ghill2|34=2|52=20230915-10:57:28.548|1=1649599582|11=ecec3594-e669-441e-9|17=YlLkXgAAAAAAAAAA|527=0|48=100934|22=8|103=0|58=Illegal price for limit order|150=8|14=0|151=0|6=0|54=7|60=20230915-10:57:28.548|39=8|37=0|10=210
+`ExecutionReport` message sent in response to a invalid price on a limit order

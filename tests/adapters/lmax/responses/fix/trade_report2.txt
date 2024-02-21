@@ -1,0 +1,4 @@
+8=FIX.4.4|35=AQ|568=mock_request_id2|569=1|263=0|749=0|750=0|10=166|
+8=FIX.4.4|35=AE|568=mock_request_id2|912=N|17=YlLkXgAAAAB4gW43|527=T-003|48=100944|22=8|32=2|31=1.002|75=20230810|60=20230810-17:50:39.300|552=1|54=1|37=V-003|11=C-003|1=1|10=123|
+8=FIX.4.4|35=AE|568=mock_request_id2|912=Y|17=YlLkXgAAAAB4gXUg|527=T-004|48=100940|22=8|32=0.02|31=3|75=20230810|60=20230810-17:50:39.400|552=1|54=2|37=V-004|11=C-004|1=1|10=207|
+A `TradeCaptureReportRequestAck` message and 2 `TradeCaptureReport` messages sent in response to a `TradeCaptureReportRequest` message

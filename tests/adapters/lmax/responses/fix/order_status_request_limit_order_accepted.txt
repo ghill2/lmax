@@ -1,0 +1,2 @@
+8=FIX.4.4|9=241|35=8|49=LMXBD|56=ghill2|34=3|52=20230915-11:46:41.993|1=1649599582|11=2dcae4dd-1e34-443a-b|48=100934|22=8|54=1|37=AACkAgAAAABD02jn|59=1|44=26490.36|40=2|60=20230915-11:46:41.993|6=0|17=0|527=0|790=d5a129ab510f0568|39=0|150=I|14=0|151=1|38=1|10=113
+# An `ExecutionReport` message sent in response to a `OrderStatusRequest` message for a limit order that was accepted

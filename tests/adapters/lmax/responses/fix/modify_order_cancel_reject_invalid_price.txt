@@ -1,0 +1,2 @@
+8=FIX.4.4|9=155|35=9|49=LMXBD|56=ghill2|34=3|52=20230915-11:22:22.696|1=1649599582|11=e4a8655c953ce19f|41=8aea6b10-d1ac-4c95-8|37=NONE|39=0|102=2|434=2|58=PRICE_NOT_VALID|10=124
+An `OrderCancelReject` message sent in response to a `OrderCancelReplaceRequest` message when the price is invalid

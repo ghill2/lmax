@@ -1,0 +1,1 @@
+Logout(8=FIX.4.4|9=101|35=5|49=LMXBD|56=ghill2|34=198|52=20230921-22:43:42.305|58=Number of messages exceeds the threshold.|10=039)

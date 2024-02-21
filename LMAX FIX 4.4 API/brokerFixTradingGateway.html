@@ -1,0 +1,1781 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>LMAX Broker FIX Trading API</title>
+<style type="text/css">
+  body
+  {
+  font-family: Arial, Helvetica, sans-serif;
+  }
+
+  p
+  {
+  margin-left: 2%;
+  }
+
+  h1
+  {
+  border-top: 1px solid black;
+  }
+
+  h2
+  {
+  margin-left: 0.5%;
+  text-decoration: underline;
+  }
+
+  h3
+  {
+  margin-left: 1%;
+  }
+
+  table.default-table
+  {
+  border-collapse: collapse;
+  width: 94%;
+  border:
+  solid black 1px;
+  margin: 0px 3%;
+  }
+
+  table.default-table th
+  {
+  background: #6699dd;
+  color:
+  white;
+  border: solid black 1px;
+  }
+
+  table.default-table td
+  {
+  border: solid
+  black 1px;
+  }
+
+  .tag-column
+  {
+  width: 5em;
+  text-align: center;
+  }
+
+  .tag-name-column
+  {
+  width: 15em;
+  text-align: left;
+  }
+
+  .tag-required-column
+  {
+  width: 8em;
+  text-align: center;
+  }
+
+  .datatype-column
+  {
+  width: 8em;
+  text-align: center;
+  }
+
+  .tag-description-column
+  {
+  white-space:pre-wrap;
+  }
+
+  .component-block-reference-column
+  {
+  padding-left: 10px;
+  }
+  
+  .release-version-column,.release-date-column
+  {
+  text-align: center
+  }              
+</style>
+</head>
+<body>
+<h1>Release Notes</h1>
+<table class="default-table">
+<tr>
+<th>Version</th><th>Changes</th><th>Production Release Date</th>
+</tr>
+<tr>
+<td class="release-version-column">246</td><td>Remove environment specific details</td><td class="release-date-column">05 Oct 2018</td>
+</tr>
+<tr>
+<td class="release-version-column">208</td><td>Update connection details</td><td class="release-date-column">04 May 2017</td>
+</tr>
+<tr>
+<td class="release-version-column">129</td><td>Add ability to trade on multiple accounts over a single connection using Account tag (Tag 1)</td><td class="release-date-column">14 Jun 2014</td>
+</tr>
+<tr>
+<td class="release-version-column">129</td><td>Added Order Type of stop limit orders (added for TAG40 an additional value of 4 = Stop Limit)</td><td class="release-date-column">11 January 2014</td>
+</tr>
+<tr>
+<td class="release-version-column">122</td><td>Add missing Tag90 (StopPx) to <a href="#ExecutionReport">ExecutionReport</a> to data dictionary.</td><td class="release-date-column">14 September 2013</td>
+</tr>
+<tr>
+<td class="release-version-column">120</td><td>Add optional Tag64 (SettlDate) to <a href="#ExecutionReport">ExecutionReport</a>. The field is optional and must be enabled by LMAX Customer Services.</td><td class="release-date-column">17 August 2013</td>
+</tr>
+<tr>
+<td class="release-version-column">109</td><td>Add Tag40 (OrderType) to <a href="#ExecutionReport">ExecutionReport</a></td><td class="release-date-column">16 March 2013</td>
+</tr>
+<tr>
+<td class="release-version-column">106</td><td>Update data dictionary and documentation to add missing Tag60 (TransactTime) to ExecutionReport</td><td class="release-date-column">2 February 2013</td>
+</tr>
+<tr>
+<td class="release-version-column">103</td><td>Add SecondaryExecID to <a href="#ExecutionReport">ExecutionReport</a> and <a href="#TradeCaptureReport">TradeCaptureReport</a> messages. Add section on compatabililty to documentation.</td><td class="release-date-column">15 December 2012</td>
+</tr>
+<tr>
+<td class="release-version-column">98</td><td>Increase maximum inbound message size to 8192 bytes.</td><td class="release-date-column">29 September 2012</td>
+</tr>
+<tr>
+<td class="release-version-column">96</td><td>Historic trade retrieval added to support recovery and access to historic data.</td><td class="release-date-column">01 September 2012</td>
+</tr>
+<tr>
+<td class="release-version-column">95</td><td>Cancel on disconnect behaviour can now be specified on a per order basis</td><td class="release-date-column">18 August 2012</td>
+</tr>
+<tr>
+<td class="release-version-column">93</td><td>ExecId now unique over all time.</td><td class="release-date-column">21 July 2012</td>
+</tr>
+<tr>
+<td class="release-version-column">92</td><td>ClOrdId extended to support up to 20 arbitrary ASCII characters</td><td class="release-date-column">07 July 2012</td>
+</tr>
+<tr>
+<td class="release-version-column">90</td><td>Order status request support extended to all Time In Force not just IOC &amp; FOK</td><td class="release-date-column">09 June 2012</td>
+</tr>
+<tr>
+<td class="release-version-column">89</td><td>Add support for GFD &amp; GTC Stop Orders<br>Add support for GTC Limit Orders<br>Add support for AvgPx on Executions Reports<br>
+</td><td class="release-date-column">09 June 2012</td>
+</tr>
+<tr>
+<td class="release-version-column">88</td><td>Order status request support for IOC &amp; FOK orders</td><td class="release-date-column">26 May 2012</td>
+</tr>
+</table>
+<p>LMAX reserves the right to change the specification of the FIX interface.</p>
+<h1>Introduction</h1>
+<h2>Overview</h2>
+<p>LMAX operates FIX Trading Gateways which allow users to manage orders on
+					their LMAX Account using FIX 4.4 messages.</p>
+<h3>Fix Session Connectivity Schedule</h3>
+<p>FIX sessions connected to the LMAX FIX Trading Gateways operate to the following daily schedule.</p>
+<table class="default-table">
+<tr>
+<th align="left">Open for connection</th><td>17:02:00 America/New York</td>
+</tr>
+<tr>
+<th align="left">Connection closed</th><td>17:02:00 America/New York</td>
+</tr>
+</table>
+<p>Connectivity is available every day of the week, except during scheduled maintenance periods.</p>
+<h2>Messages sizes</h2>
+<h3>Inbound message size limit</h3>
+<p>The LMAX FIX Trading Gateways have a maximum inbound message limit of 8192 bytes. If
+				a message is received which exceeds this size, the client will be logged off.</p>
+<h3>Outbound message size</h3>
+<p>The LMAX FIX Trading Gateway will never publish messages greater than 8192 bytes.</p>
+<h2>Recovery</h2>
+<h3>FIX Session Recovery</h3>
+<p>The LMAX FIX Trading Gateways allow a client to recover the most recent
+						512 messages for a session using standard FIX message resend behaviour.</p>
+<p>In the event of the LMAX FIX Gateway requesting a message
+						re-send, the resent messages will be ignored to avoid out of date
+						orders being placed into the market.</p>
+<p>In some scenarios FIX session recovery is insufficient. Some examples would be:
+		                <ul>
+<li>More than 512 messages are queued for a particular session. In this case only the most
+		                      recent 512 messages will be available for replay using FIX session recovery.</li>
+<li>The LMAX FIX Trading Gateway that the session was running on fails. LMAX FIX Gateways
+		                      do not support session failover. On reconnecting after a gateway failure, a client will be connected to a 
+		                      different gateway which will not have messages available for resending.</li>
+<li>Access is required to historic data which is no longer available in the current
+		                      FIX Sesssion due to a sequence number reset.</li>
+</ul>
+</p>
+<p>In these scenarios it will be necessary to use Application Recovery as described below.
+                       It may be simpler to ignore FIX session recovery entirely and always use Application Recovery as it
+                       will work in all failure scenarios. If this option is chosen then tag 141 (ResetSeqNumFlag)
+                       should always be set to "Y" on the client Logon message.</p>
+<h3>Application Recovery</h3>
+<p>LMAX FIX Trading Gateways accept two messages to enable a client to reliably recover after
+				a disconnection. These are:</p>
+<table class="default-table">
+<tr>
+<th>Message Type</th><th>Description</th>
+</tr>
+<tr>
+<td><a href="#OrderStatusRequest">Order Status Request</a></td><td>Allows a client to query the status of an Order.</td>
+</tr>
+<tr>
+<td><a href="#TradeCaptureReportRequest">Trade Capture Report Request</a></td><td>Allows a client to request historic trades.</td>
+</tr>
+</table>
+<p>Using these messages it is possible for a client to determine what trades occured on their
+                Account during a disconnection and the current status of orders that were working at the time of the
+                disconnection.</p>
+<p>These messages may also be used to request historic data.</p>
+<p>The sections on these two messages provide a detailed description on their usage.</p>
+<h2>Session Resetting</h2>
+<p>Sequence Numbers for sessions connected to the LMAX FIX Trading Gateways are persisted throughout the week.</p>
+<p>A reset of Sequence Numbers, both inbound and outbound, is enforced by LMAX on Saturdays at 17:02:00 America/New York.</p>
+<p>To reset a FIX Session the client must login with the tag 141 (ResetSeqNumFlag) set to 'Y'.</p>
+<h2>Cancel on Disconnect</h2>
+<p>LMAX supports cancel on disconnect on it's FIX Trading Gateways. This is controllable on a per 
+                Order basis using the Tag 18 (ExecInst) on the New Order Single (MsgType="D")and Order
+                Cancel Replace Request messages (MsgType="G").
+                By default, orders placed via the FIX Trading Gateways will be cancelled on an explicit logout or 
+                an unexpected disconnection from the FIX Trading Gateway.
+                To allow an order to continue working on the LMAX Order Book after the session is disconnected, the
+                client must set Tag 18 (ExecInst) to "H" (Reinstate on System Failure).</p>
+<p>Note that cancel on disconnect cannot be specified when a user is configured to trade on multiple
+                accounts. In this case the user must always set Tag 18 (ExecInst) to "H" (Reinstate on
+                System Failure).
+                </p>
+<p>
+                Orders placed via the web channel (either the LMAX web trading user interface, mobile phone UI, the Java
+                or .NET API) will <b>not</b> be cancelled when a FIX Trading session logs out or is disconnected.
+                </p>
+<h2>Compatibility</h2>
+<p>LMAX aims to maximise compatibility by using standard FIX messages, tags and usage conventions 
+                wherever possible.</p>
+<p>Periodically, LMAX updates it's FIX specifications in response to changes to the core trading
+                application. Usually these changes are to support additional features and wherever possible this
+                will be achieved through the use of additional messages, tags in existing messages
+                or tag values in existing tags. In order to minimise the impact of these sort of changes,
+                LMAX recommends that the client application accepts messages with unrecognised tags and ignores those
+                tags which it cannot interpret.</p>
+<p>LMAX will always endeavor to contact clients prior to changing the FIX API particularly in the case
+                where a change is breaking (i.e. not additive in nature).</p>
+<h1>Messages</h1>
+<h2>Supported Messages</h2>
+<p>LMAX supports the following FIX message types.</p>
+<table class="default-table" id="messages-table">
+<tr>
+<th>Type</th><th>Name</th><th>Description</th>
+</tr>
+<tr>
+<td align="center"><a href="#Heartbeat">0</a></td><td><a href="#Heartbeat">Heartbeat</a></td><td class="">Message sent during quite intervals on the connection to ensure that connection is still alive.</td>
+</tr>
+<tr>
+<td align="center"><a href="#TestRequest">1</a></td><td><a href="#TestRequest">TestRequest</a></td><td class="">Message used to request a HeartBeat from the counterparty to allow round trip testing of the connection.</td>
+</tr>
+<tr>
+<td align="center"><a href="#ResendRequest">2</a></td><td><a href="#ResendRequest">ResendRequest</a></td><td class="">Message used to request a replay of messages from the counter party.</td>
+</tr>
+<tr>
+<td align="center"><a href="#Reject">3</a></td><td><a href="#Reject">Reject</a></td><td class="">Sent in response to a message which is structurally invalid (i.e. invalid or missing tag or ill-formed tag-value).</td>
+</tr>
+<tr>
+<td align="center"><a href="#SequenceReset">4</a></td><td><a href="#SequenceReset">SequenceReset</a></td><td class="">SequenceReset.</td>
+</tr>
+<tr>
+<td align="center"><a href="#Logout">5</a></td><td><a href="#Logout">Logout</a></td><td class="">Message used to terminate a FIX connection. Can be sent by the client or the LMAX FIX Gateway.</td>
+</tr>
+<tr>
+<td align="center"><a href="#ExecutionReport">8</a></td><td><a href="#ExecutionReport">ExecutionReport</a></td><td class="">Messsage sent by the LMAX FIX Gateway which reports the change in status of a client's Order</td>
+</tr>
+<tr>
+<td align="center"><a href="#OrderCancelReject">9</a></td><td><a href="#OrderCancelReject">OrderCancelReject</a></td><td class="">Message sent by the LMAX FIX Gateway when an OrderCancelRequest message cannot be successfully processed.</td>
+</tr>
+<tr>
+<td align="center"><a href="#Logon">A</a></td><td><a href="#Logon">Logon</a></td><td class="">Message used to establish a connection between a client and the LMAX FIX Gateway.</td>
+</tr>
+<tr>
+<td align="center"><a href="#NewOrderSingle">D</a></td><td><a href="#NewOrderSingle">NewOrderSingle</a></td><td class="">Message sent by the client to place a new order with LMAX.</td>
+</tr>
+<tr>
+<td align="center"><a href="#OrderCancelRequest">F</a></td><td><a href="#OrderCancelRequest">OrderCancelRequest</a></td><td class="">Message sent by the client to cancel an existing order which is working on an LMAX order book.</td>
+</tr>
+<tr>
+<td align="center"><a href="#OrderCancelReplaceRequest">G</a></td><td><a href="#OrderCancelReplaceRequest">OrderCancelReplaceRequest</a></td><td class="">Message sent by the client to cancel an existing order which is working on an LMAX order book and replace it with another.</td>
+</tr>
+<tr>
+<td align="center"><a href="#OrderStatusRequest">H</a></td><td><a href="#OrderStatusRequest">OrderStatusRequest</a></td><td class="">Message sent by the client to request the state of an order.</td>
+</tr>
+<tr>
+<td align="center"><a href="#TradeCaptureReportRequest">AD</a></td><td><a href="#TradeCaptureReportRequest">TradeCaptureReportRequest</a></td><td class="">Message sent by the client in order to request historic trades.</td>
+</tr>
+<tr>
+<td align="center"><a href="#TradeCaptureReport">AE</a></td><td><a href="#TradeCaptureReport">TradeCaptureReport</a></td><td class="">Message sent by LMAX to report an historic trade.</td>
+</tr>
+<tr>
+<td align="center"><a href="#TradeCaptureReportRequestAck">AQ</a></td><td><a href="#TradeCaptureReportRequestAck">TradeCaptureReportRequestAck</a></td><td class="">Message sent by LMAX in response to a Trade Capture Report Request message to confirm the success or failure of the request.</td>
+</tr>
+</table>
+<h2>Standard Message Components</h2>
+<a name="StandardHeader"></a>
+<h3>StandardHeader</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_8">8</a></td><td class="tag-name-column">BeginString</td><td class="tag-description-column">The FIX version number identifier. Always 'FIX.4.4'</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_9">9</a></td><td class="tag-name-column">BodyLength</td><td class="tag-description-column">Length of the FIX Message.</td><td class="tag-required-column">Y</td><td class="datatype-column">Length</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_35">35</a></td><td class="tag-name-column">MsgType</td><td class="tag-description-column">The type of the message.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_49">49</a></td><td class="tag-name-column">SenderCompID</td><td class="tag-description-column">Identifier for the sender of the message.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_56">56</a></td><td class="tag-name-column">TargetCompID</td><td class="tag-description-column">Identifier for the receiver of the message.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_34">34</a></td><td class="tag-name-column">MsgSeqNum</td><td class="tag-description-column">The unique sequence number for the message within current FIX session.</td><td class="tag-required-column">Y</td><td class="datatype-column">SeqNum</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_43">43</a></td><td class="tag-name-column">PossDupFlag</td><td class="tag-description-column">Always required for retransmitted messages, whether prompted by the sending system or as the result of a resend request. Set to 'Y' if this is a resent message.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Boolean</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_97">97</a></td><td class="tag-name-column">PossResend</td><td class="tag-description-column">Never used by LMAX.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Boolean</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_52">52</a></td><td class="tag-name-column">SendingTime</td><td class="tag-description-column">Time message was sent.</td><td class="tag-required-column">Y</td><td class="datatype-column">UTCTimestamp</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_122">122</a></td><td class="tag-name-column">OrigSendingTime</td><td class="tag-description-column">Timestamp when message was originally sent. Required for message resent as a result of a ResendRequest.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">UTCTimestamp</td>
+</tr>
+</table>
+<a name="StandardTrailer"></a>
+<h3>StandardTrailer</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_10">10</a></td><td class="tag-name-column">CheckSum</td><td class="tag-description-column">Checksum for message contents.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+</table>
+<a name="Instrument"></a>
+<h3>Instrument</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_48">48</a></td><td class="tag-name-column">SecurityID</td><td class="tag-description-column">Must contain the LMAX orderbook id.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_22">22</a></td><td class="tag-name-column">SecurityIDSource</td><td class="tag-description-column">Must contain the value '8' (Exchange Symbol)</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_55">55</a></td><td class="tag-name-column">Symbol</td><td class="tag-description-column">Ticker symbol</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+</table>
+<a name="OrderQtyData"></a>
+<h3>OrderQtyData</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_38">38</a></td><td class="tag-name-column">OrderQty</td><td class="tag-description-column">The number of contracts that an order is for.</td><td class="tag-required-column">Y</td><td class="datatype-column">Qty</td>
+</tr>
+</table>
+<a name="PositionQty"></a>
+<h3>PositionQty</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_702">702</a></td><td class="tag-name-column">NoPositions</td><td class="tag-description-column">Number of position entries. </td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">NumInGroup</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_703">703</a></td><td class="tag-name-column">PosType</td><td class="tag-description-column">Used to identify the type of quantity that is being returned. Valid values: TQ = Transaction Quantity IAS = Intra-Spread Qty IES = Inter-Spread Qty FIN = End-of-Day Qty SOD = Start-of-Day Qty EX = Option Exercise Qty AS = Option Assignment TX = Transaction from Exercise TA = Transaction from Assignment PIT = Pit Trade Qty TRF = Transfer Trade Qty ETR = Electronic Trade Qty ALC = Allocation Trade Qty PA = Adjustment Qty ASF = As-of Trade Qty DLV = Delivery Qty TOT = Total Transaction Qty XM = Cross Margin Qty SPL = Integral Split </td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_704">704</a></td><td class="tag-name-column">LongQty</td><td class="tag-description-column">Long Quantity </td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Qty</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_705">705</a></td><td class="tag-name-column">ShortQty</td><td class="tag-description-column">Short Quantity </td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Qty</td>
+</tr>
+</table>
+<a name="TrdCapDtGrp"></a>
+<h3>TrdCapDtGrp</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_580">580</a></td><td class="tag-name-column">NoDates</td><td class="tag-description-column">Number of Date fields provided in date range. Must be 2.</td><td class="tag-required-column">Y</td><td class="datatype-column">NumInGroup</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_60">60</a></td><td class="tag-name-column">TransactTime</td><td class="tag-description-column">Start (First entry in repeating group)or end (Second entry in repeating group) timestamp of the period for which trades should be retrieved expressed in UTC.</td><td class="tag-required-column">Y</td><td class="datatype-column">UTCTimestamp</td>
+</tr>
+</table>
+<a name="TrdCapRptSideGrp"></a>
+<h3>TrdCapRptSideGrp</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_552">552</a></td><td class="tag-name-column">NoSides</td><td class="tag-description-column">Number of Side repeating group instances.  
+Valid values:
+  1
+  
+Contains information about the client Order which traded.</td><td class="tag-required-column">Y</td><td class="datatype-column">NumInGroup</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_54">54</a></td><td class="tag-name-column">Side</td><td class="tag-description-column">Side of the order.
+Valid values:
+  1 = Buy
+  2 = Sell</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_37">37</a></td><td class="tag-name-column">OrderID</td><td class="tag-description-column">Unique identifier for Order as assigned by LMAX. Unique over all time and orderbooks</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_11">11</a></td><td class="tag-name-column">ClOrdID</td><td class="tag-description-column">The client supplied identifier for the order.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_1">1</a></td><td class="tag-name-column">Account</td><td class="tag-description-column">The LMAX Account Id on which the trade occurred</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+</table>
+<h2>Message Descriptions</h2>
+<a name="Heartbeat"></a>
+<h3>Heartbeat</h3>
+<p>
+<Description>Message sent during quite intervals on the connection to ensure that connection is still alive.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            0</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_112">112</a></td><td class="tag-name-column">TestReqID</td><td class="tag-description-column">Required when the heartbeat is the result of a Test Request message.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="TestRequest"></a>
+<h3>TestRequest</h3>
+<p>
+<Description>Message used to request a HeartBeat from the counterparty to allow round testing trip of the connection.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            1</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_112">112</a></td><td class="tag-name-column">TestReqID</td><td class="tag-description-column">Identifier included in Test Request message to be returned in resulting Heartbeat
+</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="ResendRequest"></a>
+<h3>ResendRequest</h3>
+<p>
+<Description>Message used to request a replay of messages from the counter party.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            2</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_7">7</a></td><td class="tag-name-column">BeginSeqNo</td><td class="tag-description-column">Message sequence number of first message in range to be resent</td><td class="tag-required-column">Y</td><td class="datatype-column">SeqNum</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_16">16</a></td><td class="tag-name-column">EndSeqNo</td><td class="tag-description-column">Message sequence number of last message in range to be resent.  If request is for a single message BeginSeqNo (7) = EndSeqNo.  If request is for all messages subsequent to a particular message, EndSeqNo = &ldquo;0&rdquo; (representing infinity).</td><td class="tag-required-column">Y</td><td class="datatype-column">SeqNum</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="Reject"></a>
+<h3>Reject</h3>
+<p>
+<Description>Sent in response to a message which is structurally invalid (i.e. invalid or missing tag or ill-formed tag-value).</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            3</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_45">45</a></td><td class="tag-name-column">RefSeqNum</td><td class="tag-description-column">MsgSeqNum of rejected message</td><td class="tag-required-column">Y</td><td class="datatype-column">SeqNum</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_371">371</a></td><td class="tag-name-column">RefTagID</td><td class="tag-description-column">The tag number of the FIX field being referenced.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_372">372</a></td><td class="tag-name-column">RefMsgType</td><td class="tag-description-column">The MsgType of the FIX message being referenced.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_373">373</a></td><td class="tag-name-column">SessionRejectReason</td><td class="tag-description-column">Code to identify reason for a session-level Reject message.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_58">58</a></td><td class="tag-name-column">Text</td><td class="tag-description-column">Where possible, message to explain reason for rejection</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="SequenceReset"></a>
+<h3>SequenceReset</h3>
+<p>
+<Description>SequenceReset</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            4</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_123">123</a></td><td class="tag-name-column">GapFillFlag</td><td class="tag-description-column">Indicates that the Sequence Reset message is replacing administrative or application messages which will not be resent.
+Valid values:
+  Y = Gap Fill message, MsgSeqNum field valid
+  N = Sequence Reset, ignore MsgSeqNum
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Boolean</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_36">36</a></td><td class="tag-name-column">NewSeqNo</td><td class="tag-description-column">New sequence number
+</td><td class="tag-required-column">Y</td><td class="datatype-column">SeqNum</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="Logout"></a>
+<h3>Logout</h3>
+<p>
+<Description>Message used to terminate a FIX connection. Can be sent by the client or the LMAX FIX Gateway.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            5</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_58">58</a></td><td class="tag-name-column">Text</td><td class="tag-description-column">If LMAX logs out a client this may contain a text description for the reason for the logout.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="ExecutionReport"></a>
+<h3>ExecutionReport</h3>
+<p>
+<Description>Messsage sent by the LMAX FIX Gateway which reports the change in status of a client's Order</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            8</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_37">37</a></td><td class="tag-name-column">OrderID</td><td class="tag-description-column">The unique identifier allocated by LMAX for the order whose execution is being reported.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_527">527</a></td><td class="tag-name-column">SecondaryExecID</td><td class="tag-description-column">Execution ID as generated by the MTF. Currently, this is only populated for Executions reporting a Trade where this will be a 16 character string. For other Executions (New, Cancel, Replace etc) this will be set to 0.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_11">11</a></td><td class="tag-name-column">ClOrdID</td><td class="tag-description-column">The client supplied identifier for the order whose execution is being reported.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_41">41</a></td><td class="tag-name-column">OrigClOrdID</td><td class="tag-description-column">Conditionally required for response to an electronic Cancel or Cancel/Replace request (ExecType=PendingCancel, Replace, or Canceled). ClOrdID of the previous accepted order (NOT
+            the initial order of the day) when canceling or replacing an order.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_790">790</a></td><td class="tag-name-column">OrdStatusReqID</td><td class="tag-description-column">Required if responding to and if provided on the Order Status Request message. Echo back the value provided by the requester.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_17">17</a></td><td class="tag-name-column">ExecID</td><td class="tag-description-column">The unique identifier allocated by LMAX Broker to the ExecutionReport message.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_150">150</a></td><td class="tag-name-column">ExecType</td><td class="tag-description-column">Describes the type of execution being reported by this ExecutionReport message.</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_39">39</a></td><td class="tag-name-column">OrdStatus</td><td class="tag-description-column">Describes the current state of a chain of orders.</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_103">103</a></td><td class="tag-name-column">OrdRejReason</td><td class="tag-description-column">For use with ExecType = 8 (Rejected). Contains the reason for the rejection.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_1">1</a></td><td class="tag-name-column">Account</td><td class="tag-description-column">Contains the LMAX Account Id for the account on which the order was placed.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#Instrument">Instrument</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_54">54</a></td><td class="tag-name-column">Side</td><td class="tag-description-column">Side of the order.
+Valid values:
+  1 = Buy
+  2 = Sell</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#OrderQtyData">OrderQtyData</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_40">40</a></td><td class="tag-name-column">OrdType</td><td class="tag-description-column">Order type.
+LMAX Supported values:  
+  1 = Market
+  2 = Limit
+  3 = Stop
+  4 = Stop Limit</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_44">44</a></td><td class="tag-name-column">Price</td><td class="tag-description-column">Present if specified on the order</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Price</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_99">99</a></td><td class="tag-name-column">StopPx</td><td class="tag-description-column">Present if specified on the order</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Price</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_59">59</a></td><td class="tag-name-column">TimeInForce</td><td class="tag-description-column">Specifies how long the order remains in effect.
+Valid values:
+  0 = Day (trading session)
+  1 = Good Till Cancel  (GTC)
+  3 = Immediate or Cancel  (IOC)
+  4 = Fill or Kill  (FOK)
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_32">32</a></td><td class="tag-name-column">LastQty</td><td class="tag-description-column">Quantity of contracts bought/sold on this fill. Will be present if ExecType = Trade.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Qty</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_31">31</a></td><td class="tag-name-column">LastPx</td><td class="tag-description-column">Price of this (last) fill.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Price</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_151">151</a></td><td class="tag-name-column">LeavesQty</td><td class="tag-description-column">Quantity open for further execution.</td><td class="tag-required-column">Y</td><td class="datatype-column">Qty</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_14">14</a></td><td class="tag-name-column">CumQty</td><td class="tag-description-column">Currently executed quantity for chain of orders.</td><td class="tag-required-column">Y</td><td class="datatype-column">Qty</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_6">6</a></td><td class="tag-name-column">AvgPx</td><td class="tag-description-column">Average fill price for the chain of orders. Rounded down to the nearest price increment.</td><td class="tag-required-column">Y</td><td class="datatype-column">Price</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_60">60</a></td><td class="tag-name-column">TransactTime</td><td class="tag-description-column">Time the transaction represented by this ExecutionReport occurred
+		</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">UTCTimestamp</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_64">64</a></td><td class="tag-name-column">SettlDate</td><td class="tag-description-column">When reporting a trade execution, this field contains the settlement date for the trade being reported. This field needs to be enabled by LMAX Customer Services.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">LocalMktDate</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_58">58</a></td><td class="tag-name-column">Text</td><td class="tag-description-column">Free format text string (Note: this field does not have a specified maximum length)</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="OrderCancelReject"></a>
+<h3>OrderCancelReject</h3>
+<p>
+<Description>Message sent by the LMAX FIX Gateway when an OrderCancelRequest message cannot be successfully processed.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            9</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_37">37</a></td><td class="tag-name-column">OrderID</td><td class="tag-description-column">The OrderId of the Order which failed to be cancelled. If CxlRejReason=&rdquo;Unknown order&rdquo; this will be &ldquo;NONE&rdquo;.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_11">11</a></td><td class="tag-name-column">ClOrdID</td><td class="tag-description-column">The client supplied identifier for the cancel request or to the replacement order.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_41">41</a></td><td class="tag-name-column">OrigClOrdID</td><td class="tag-description-column">ClOrdID which could not be canceled/replaced. ClOrdID of the previous accepted order (NOT the initial order of the day) when canceling or replacing an order.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_39">39</a></td><td class="tag-name-column">OrdStatus</td><td class="tag-description-column">OrdStatus value after this cancel reject is applied. If (102) = "Unknown Order", specify Rejected.</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_1">1</a></td><td class="tag-name-column">Account</td><td class="tag-description-column">The LMAX Account Id on which the Cancel or Cancel/Replace was attempted.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_434">434</a></td><td class="tag-name-column">CxlRejResponseTo</td><td class="tag-description-column">Identifies the type of request that a Cancel Reject is in response to.
+LMAX Supported values:
+  1 = Order Cancel Request (F)
+  2 = Order Cancel/Replace Request (G)
+</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_102">102</a></td><td class="tag-name-column">CxlRejReason</td><td class="tag-description-column">Code to identify reason for cancel rejection.
+Valid values:
+  1 = Unknown order
+  2 = Broker / Exchange Option
+  6 = Duplicate ClOrdID(11) received (only for Order Cancel Replace Request)
+</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_58">58</a></td><td class="tag-name-column">Text</td><td class="tag-description-column">Free format text string (Note: this field does not have a specified maximum length)</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="Logon"></a>
+<h3>Logon</h3>
+<p>
+<Description>
+            The Logon message must be the first message Client sends after establishing a TCP connection on the port agreed upon with LMAX.
+            Client must wait for a Logon from LMAX before sending other messages and beginning gap fill operations.
+        </Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            A</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_98">98</a></td><td class="tag-name-column">EncryptMethod</td><td class="tag-description-column">Always '0' - None</td><td class="tag-required-column">Y</td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_108">108</a></td><td class="tag-name-column">HeartBtInt</td><td class="tag-description-column">The maximum time to wait before a Heartbeat message is sent in the absence of other activity on the connection. The same value is used by both parties.</td><td class="tag-required-column">Y</td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_141">141</a></td><td class="tag-name-column">ResetSeqNumFlag</td><td class="tag-description-column">Indicates both sides of a FIX session should reset sequence numbers</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Boolean</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_383">383</a></td><td class="tag-name-column">MaxMessageSize</td><td class="tag-description-column">Maximum number of bytes supported for a single message.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Length</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_553">553</a></td><td class="tag-name-column">Username</td><td class="tag-description-column">LMAX username. This is required on the login message sent by the client</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_554">554</a></td><td class="tag-name-column">Password</td><td class="tag-description-column">LMAX Password or passphrase. This is required on the login message sent by the client</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="NewOrderSingle"></a>
+<h3>NewOrderSingle</h3>
+<p>
+<Description>Message sent by the client to place a new order with LMAX.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            D</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_11">11</a></td><td class="tag-name-column">ClOrdID</td><td class="tag-description-column">The client supplied identifier for the order. ClOrdId is restricted to a maximum of 20 arbitrary ASCII characters.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_100">100</a></td><td class="tag-name-column">ExDestination</td><td class="tag-description-column">Execution destination as defined by LMAX when order is entered.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Exchange</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#Instrument">Instrument</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_1">1</a></td><td class="tag-name-column">Account</td><td class="tag-description-column">The LMAX Account ID on which to place the new order. If not specified then the user's default account will be used.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_54">54</a></td><td class="tag-name-column">Side</td><td class="tag-description-column">Side of the order.
+Valid values:
+  1 = Buy
+  2 = Sell</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_18">18</a></td><td class="tag-name-column">ExecInst</td><td class="tag-description-column">Instructions for order handling on exchange trading floor.  If more than one instruction is applicable to an order, this field can contain multiple instructions separated by space.
+Valid values:
+  H = Reinstate on System Failure (Do not cancel on disconnect)
+  Q = Cancel on System Failure (Cancel on disconnect)</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">MultipleStringValue</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_60">60</a></td><td class="tag-name-column">TransactTime</td><td class="tag-description-column">Time this order request was initiated/released by the trader, trading system, or intermediary. Ignored by LMAX.</td><td class="tag-required-column">Y</td><td class="datatype-column">UTCTimestamp</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#OrderQtyData">OrderQtyData</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_40">40</a></td><td class="tag-name-column">OrdType</td><td class="tag-description-column">Order type.
+LMAX Supported values:  
+  1 = Market
+  2 = Limit
+  3 = Stop
+  4 = Stop Limit</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_44">44</a></td><td class="tag-name-column">Price</td><td class="tag-description-column">Required for limit OrdTypes.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Price</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_99">99</a></td><td class="tag-name-column">StopPx</td><td class="tag-description-column">Required for stop OrdTypes.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Price</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_59">59</a></td><td class="tag-name-column">TimeInForce</td><td class="tag-description-column">Specifies how long the order remains in effect.
+            For OrdType = Market: Valid values: 3 = Immediate or Cancel (IOC); 4 = Fill or Kill (FOK)
+            For OrdType = Limit: Valid values: 0 = Day (trading session); 1 = Good Till Cancel; 3 = Immediate or Cancel (IOC); 4 = Fill or Kill (FOK)
+            For OrdType = Stop: Valid values: 0 = Day (trading session); 1 = Good Till Cancel</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_1089">1089</a></td><td class="tag-name-column">MatchIncrement</td><td class="tag-description-column">Minimum trade quantity.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Qty</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="OrderCancelRequest"></a>
+<h3>OrderCancelRequest</h3>
+<p>
+<Description>Message sent by the client to cancel an existing order which is working on an LMAX order book.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            F</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_41">41</a></td><td class="tag-name-column">OrigClOrdID</td><td class="tag-description-column">ClOrdID of the previous non-rejected order (NOT the initial order of the day) when canceling or replacing an order.
+        </td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_1">1</a></td><td class="tag-name-column">Account</td><td class="tag-description-column">The LMAX Account ID on which to attempt to cancel the order. If not specified then the user's default account will be used.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_11">11</a></td><td class="tag-name-column">ClOrdID</td><td class="tag-description-column">The client supplied identifier for the order. ClOrdId is restricted to a maximum of 20 arbitrary ASCII characters.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#Instrument">Instrument</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_54">54</a></td><td class="tag-name-column">Side</td><td class="tag-description-column">Side of the order.
+Valid values:
+  1 = Buy
+  2 = Sell</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_60">60</a></td><td class="tag-name-column">TransactTime</td><td class="tag-description-column">Time this order request was initiated/released by the trader or trading system.</td><td class="tag-required-column">Y</td><td class="datatype-column">UTCTimestamp</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#OrderQtyData">OrderQtyData</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="OrderCancelReplaceRequest"></a>
+<h3>OrderCancelReplaceRequest</h3>
+<p>
+<Description>Message sent by the client to cancel an existing order which is working on an LMAX order book and replace it with another.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            G</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_41">41</a></td><td class="tag-name-column">OrigClOrdID</td><td class="tag-description-column">ClOrdID of the previous non-rejected order (NOT the initial order of the day) when canceling or replacing an order.
+        </td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_1">1</a></td><td class="tag-name-column">Account</td><td class="tag-description-column">The LMAX Account ID on which to attempt to cancel and replace the order. If not specified then the user's default account will be used.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_11">11</a></td><td class="tag-name-column">ClOrdID</td><td class="tag-description-column">The client supplied identifier for the order. ClOrdId is restricted to a maximum of 20 arbitrary ASCII characters.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#Instrument">Instrument</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_54">54</a></td><td class="tag-name-column">Side</td><td class="tag-description-column">Side of the order.
+Valid values:
+  1 = Buy
+  2 = Sell</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_60">60</a></td><td class="tag-name-column">TransactTime</td><td class="tag-description-column">Time this order request was initiated/released by the trader or trading system.</td><td class="tag-required-column">Y</td><td class="datatype-column">UTCTimestamp</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#OrderQtyData">OrderQtyData</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_18">18</a></td><td class="tag-name-column">ExecInst</td><td class="tag-description-column">Instructions for order handling on exchange trading floor.  If more than one instruction is applicable to an order, this field can contain multiple instructions separated by space.
+Valid values:
+  H = Reinstate on System Failure (Do not cancel on disconnect)
+  Q = Cancel on System Failure (Cancel on disconnect)</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">MultipleStringValue</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_40">40</a></td><td class="tag-name-column">OrdType</td><td class="tag-description-column">Order type.
+            LMAX Supported values:
+            2 = Limit</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_44">44</a></td><td class="tag-name-column">Price</td><td class="tag-description-column">Price per unit of quantity
+</td><td class="tag-required-column">Y</td><td class="datatype-column">Price</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_59">59</a></td><td class="tag-name-column">TimeInForce</td><td class="tag-description-column">Specifies how long the order remains in effect.
+            Valid values: 0 = Day (trading session)</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="OrderStatusRequest"></a>
+<h3>OrderStatusRequest</h3>
+<p>
+<Description>Message sent by the client to request the state of an order. Note that orders that were rejected for whatever reason will be reported as an unknown order.</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            H</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_11">11</a></td><td class="tag-name-column">ClOrdID</td><td class="tag-description-column">The ClOrdID of the order whose status is being requested.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_1">1</a></td><td class="tag-name-column">Account</td><td class="tag-description-column">The LMAX Account ID on which the order whose state is being requested was placed. If not specified then the user's default account will be used.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_790">790</a></td><td class="tag-name-column">OrdStatusReqID</td><td class="tag-description-column">Optional, can be used to uniquely identify a specific Order Status Request message. Echoed back on Execution Report if provided. restricted to a maximum of 16 hexadecimal
+            characters with no leading 0 characters (essentially this is a 64bit number).</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#Instrument">Instrument</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_54">54</a></td><td class="tag-name-column">Side</td><td class="tag-description-column">Side of the order.
+Valid values:
+  1 = Buy
+  2 = Sell</td><td class="tag-required-column">Y</td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="TradeCaptureReportRequest"></a>
+<h3>TradeCaptureReportRequest</h3>
+<p>
+<Description>
+<p>The Trade Capture Report Request message is used by the client to request historic trades.
+          In order to request historic trades the client provides the period of time for which trades are being
+          requested. The period is specified using a start and end time. The gateway will response in one of the
+          following ways:
+          <table class="default-table">
+<tr>
+<th>Scenario</th><th>Response</th>
+</tr>
+<tr>
+<td>An invalid request is made such as the start time is after the end time</td><td>
+                   The gateway sends a <a href="#TradeCaptureReportRequestAck">Trade Capture Report Request Ack</a>
+                   message with the following tags set:
+                   
+                     <ul>
+<li>Tag 749 (TradeRequestResult): 99 (Other)</li>
+<li>Tag 750 (TradeRequestStatus): 2 (Rejected)</li>
+<li>Tag 58 (Text): contains an error message.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td>There are no trades in the requested period.</td><td>The gateway sends a <a href="#TradeCaptureReportRequestAck">Trade Capture Report Request Ack</a>
+                   message with the following tags set:
+                   
+                     <ul>
+<li>Tag 748 (TotNumTradeReports): set to 0. Note that this is the only scenario in which 
+                       this tag will be present in the Trade Capture Report Request Ack.</li>
+<li>Tag 749 (TradeRequestResult): 0 (Successful)</li>
+<li>Tag 750 (TradeRequestStatus): 0 (Accepted)</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td>There are trades in the requested period.</td><td>The gateway sends a <a href="#TradeCaptureReportRequestAck">Trade Capture Report Request Ack</a>
+                   message with the following tags set:
+                   
+                     <ul>
+<li>Tag 749 (TradeRequestResult): 0 (Successful)</li>
+<li>Tag 750 (TradeRequestStatus): 0 (Accepted)</li>
+</ul>
+                     
+                     followed by a <a href="#TradeCaptureReport">Trade Capture Report</a> message for each Trade in 
+                     the requested period. The last <a href="#TradeCaptureReport">Trade Capture Report</a> will have
+                     tag 912 (LastRptRequested) will be set to "Y".
+                 </td>
+</tr>
+</table>
+<br>
+</p>
+</Description>
+</p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            AD</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_568">568</a></td><td class="tag-name-column">TradeRequestID</td><td class="tag-description-column">Trade Capture Report Request ID. String with maximum length of 16 ASCII characters. Must be unique while a request is active. For example &amp;%^aUk1-\+4rk;!p</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_569">569</a></td><td class="tag-name-column">TradeRequestType</td><td class="tag-description-column">Type of Trade Capture Report.
+LMAX supported values:
+  1 = Matched trades matching Criteria provided on request</td><td class="tag-required-column">Y</td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_263">263</a></td><td class="tag-name-column">SubscriptionRequestType</td><td class="tag-description-column">Used to subscribe / unsubscribe for trade capture reports.
+LMAX supported values:
+  0 = Snapshot</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_1">1</a></td><td class="tag-name-column">Account</td><td class="tag-description-column">The LMAX Account Id whose trades to request.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#TrdCapDtGrp">TrdCapDtGrp</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="TradeCaptureReport"></a>
+<h3>TradeCaptureReport</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            AE</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_568">568</a></td><td class="tag-name-column">TradeRequestID</td><td class="tag-description-column">Trade Capture Report Request ID as provided in the Trade Capture Report Request.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_912">912</a></td><td class="tag-name-column">LastRptRequested</td><td class="tag-description-column">Indicates if this is the last report in the response to a Trade Capture Report Request
+  Y = Last message
+  N = Not last message</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">Boolean</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_17">17</a></td><td class="tag-name-column">ExecID</td><td class="tag-description-column">Execution ID (Trade Identifier) as assigned by the LMAX Broker as reported on the original Execution Report (MsgType=8) message.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_527">527</a></td><td class="tag-name-column">SecondaryExecID</td><td class="tag-description-column">Execution ID (Trade Identifier) as assigned by the LMAX MTF as reported on the original Execution Report (MsgType=8) message.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#Instrument">Instrument</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_32">32</a></td><td class="tag-name-column">LastQty</td><td class="tag-description-column">Trade quantity.</td><td class="tag-required-column">Y</td><td class="datatype-column">Qty</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_31">31</a></td><td class="tag-name-column">LastPx</td><td class="tag-description-column">Trade price.</td><td class="tag-required-column">Y</td><td class="datatype-column">Price</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_75">75</a></td><td class="tag-name-column">TradeDate</td><td class="tag-description-column">Trade date on which the trade occurred.</td><td class="tag-required-column">Y</td><td class="datatype-column">LocalMktDate</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_60">60</a></td><td class="tag-name-column">TransactTime</td><td class="tag-description-column">Time the transaction represented by this Trade Capture Report occurred to millisecond resolution</td><td class="tag-required-column">Y</td><td class="datatype-column">UTCTimestamp</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#TrdCapRptSideGrp">TrdCapRptSideGrp</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<a name="TradeCaptureReportRequestAck"></a>
+<h3>TradeCaptureReportRequestAck</h3>
+<p></p>
+<table class="default-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th>Description</th><th class="tag-required-column">Required</th><th class="datatype-column">Data Type</th>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardHeader">StandardHeader</a></td><td class="tag-required-column">Y</td><td class="datatype-column">
+                                            MsgType=
+                                            AQ</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_568">568</a></td><td class="tag-name-column">TradeRequestID</td><td class="tag-description-column">Trade Capture Report Request ID as provided in the Trade Capture Report Request.</td><td class="tag-required-column">Y</td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_569">569</a></td><td class="tag-name-column">TradeRequestType</td><td class="tag-description-column">Type of Trade Capture Report.
+LMAX supported values:
+  1 = Matched trades matching Criteria provided on request</td><td class="tag-required-column">Y</td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_263">263</a></td><td class="tag-name-column">SubscriptionRequestType</td><td class="tag-description-column">Used to subscribe / unsubscribe for trade capture reports.
+LMAX supported values:
+  0 = Snapshot</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">char</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_748">748</a></td><td class="tag-name-column">TotNumTradeReports</td><td class="tag-description-column">Total number of trade reports returned. Will only be set when no trades were found for the requested criteria when it's value will be 0.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_749">749</a></td><td class="tag-name-column">TradeRequestResult</td><td class="tag-description-column">Result of Trade Request
+LMAX Supported values:
+  0 = Successful (Default)
+  99 = Other</td><td class="tag-required-column">Y</td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_750">750</a></td><td class="tag-name-column">TradeRequestStatus</td><td class="tag-description-column">Status of Trade Request.
+LMAX Supported values:
+  0 = Accepted
+  2 = Rejected</td><td class="tag-required-column">Y</td><td class="datatype-column">int</td>
+</tr>
+<tr>
+<td class="tag-column"><a href="#tag_58">58</a></td><td class="tag-name-column">Text</td><td class="tag-description-column">Contains error message when Trade Capture Report Request is rejected.</td><td class="tag-required-column">
+                                                        N
+                                                    </td><td class="datatype-column">String</td>
+</tr>
+<tr>
+<td class="component-block-reference-column" colspan="3"><a href="#StandardTrailer">StandardTrailer</a></td><td class="tag-required-column">Y</td><td class="datatype-column"></td>
+</tr>
+</table>
+<h2>Tags</h2>
+<table class="default-table" id="tags-table">
+<tr>
+<th class="tag-column">Tag</th><th class="tag-name-column">Tag Name</th><th class="datatype-column">Type</th><th>Description</th>
+</tr>
+<tr id="tag_1">
+<td class="tag-column">1</td><td class="tag-name-column">Account</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">The LMAX Account ID. If not specified then the user's default account will be used.</td>
+</tr>
+<tr id="tag_6">
+<td class="tag-column">6</td><td class="tag-name-column">AvgPx</td><td class="datatype-column"><a href="#datatype_Price">Price</a></td><td class="tag-description-column">Calculated average price of all fills on this order.</td>
+</tr>
+<tr id="tag_7">
+<td class="tag-column">7</td><td class="tag-name-column">BeginSeqNo</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">Message sequence number of first message in range to be resent</td>
+</tr>
+<tr id="tag_8">
+<td class="tag-column">8</td><td class="tag-name-column">BeginString</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Identifies beginning of new message and protocol version. ALWAYS FIRST FIELD IN MESSAGE. (Always unencrypted).
+
+Valid values:
+ * FIX.4.4</td>
+</tr>
+<tr id="tag_9">
+<td class="tag-column">9</td><td class="tag-name-column">BodyLength</td><td class="datatype-column"><a href="#datatype_Length">Length</a></td><td class="tag-description-column">Message length, in bytes, forward to the CheckSum field. ALWAYS SECOND FIELD IN MESSAGE. (Always unencrypted)</td>
+</tr>
+<tr id="tag_10">
+<td class="tag-column">10</td><td class="tag-name-column">CheckSum</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Three byte, simple checksum  (see Volume 2: &ldquo;Checksum Calculation&rdquo; for description). ALWAYS LAST FIELD IN MESSAGE; i.e. serves, with the trailing &lt;SOH&gt;, as the end-of-message delimiter.  Always defined as three characters. (Always unencrypted)</td>
+</tr>
+<tr id="tag_11">
+<td class="tag-column">11</td><td class="tag-name-column">ClOrdID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">The client supplied identifier for the order. ClOrdId is restricted to a maximum of 20 arbitrary ASCII characters.
+      
+Must be unique for all currently working order. If a new order is received with the same ClOrdId as a currently working order then the new order will be rejected.</td>
+</tr>
+<tr id="tag_14">
+<td class="tag-column">14</td><td class="tag-name-column">CumQty</td><td class="datatype-column"><a href="#datatype_Qty">Qty</a></td><td class="tag-description-column">Total quantity (e.g. number of shares) filled.</td>
+</tr>
+<tr id="tag_16">
+<td class="tag-column">16</td><td class="tag-name-column">EndSeqNo</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">Message sequence number of last message in range to be resent.  If request is for a single message BeginSeqNo (7) = EndSeqNo.  If request is for all messages subsequent to a particular message, EndSeqNo = &ldquo;0&rdquo; (representing infinity).</td>
+</tr>
+<tr id="tag_17">
+<td class="tag-column">17</td><td class="tag-name-column">ExecID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Unique identifier of execution message as assigned by LMAX. Unique over all time. This is a 16 character ASCII string.</td>
+</tr>
+<tr id="tag_18">
+<td class="tag-column">18</td><td class="tag-name-column">ExecInst</td><td class="datatype-column"><a href="#datatype_MultipleStringValue">MultipleStringValue</a></td><td class="tag-description-column">Instructions for order handling on exchange trading floor.  If more than one instruction is applicable to an order, this field can contain multiple instructions separated by space.
+Valid values:
+  H = Reinstate on System Failure (Do not cancel on disconnect)
+  Q = Cancel on System Failure (Cancel on disconnect)</td>
+</tr>
+<tr id="tag_22">
+<td class="tag-column">22</td><td class="tag-name-column">SecurityIDSource</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Identifies class or source of the SecurityID (48) value.  Required if SecurityID is specified.
+LMAX Supported values are:
+  8 = Exchange Symbol</td>
+</tr>
+<tr id="tag_31">
+<td class="tag-column">31</td><td class="tag-name-column">LastPx</td><td class="datatype-column"><a href="#datatype_Price">Price</a></td><td class="tag-description-column">Price of this (last) fill.</td>
+</tr>
+<tr id="tag_32">
+<td class="tag-column">32</td><td class="tag-name-column">LastQty</td><td class="datatype-column"><a href="#datatype_Qty">Qty</a></td><td class="tag-description-column">Quantity of contracts bought/sold on this fill.</td>
+</tr>
+<tr id="tag_34">
+<td class="tag-column">34</td><td class="tag-name-column">MsgSeqNum</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">Integer message sequence number.</td>
+</tr>
+<tr id="tag_35">
+<td class="tag-column">35</td><td class="tag-name-column">MsgType</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Defines message type    ALWAYS THIRD FIELD IN MESSAGE. (Always unencrypted)
+Valid values:  *** Note the use of lower case letters ***
+  0 = Heartbeat
+  1 = Test Request
+  2 = Resend Request
+  3 = Reject
+  4 = Sequence Reset
+  5 = Logout
+  8 = Execution Report
+  9 = Order Cancel Reject
+  A = Logon
+  D = Order &ndash; Single
+  F = Order Cancel Request</td>
+</tr>
+<tr id="tag_36">
+<td class="tag-column">36</td><td class="tag-name-column">NewSeqNo</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">New sequence number
+</td>
+</tr>
+<tr id="tag_37">
+<td class="tag-column">37</td><td class="tag-name-column">OrderID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Unique identifier for Order as assigned by LMAX. Unique over all time and orderbooks</td>
+</tr>
+<tr id="tag_38">
+<td class="tag-column">38</td><td class="tag-name-column">OrderQty</td><td class="datatype-column"><a href="#datatype_Qty">Qty</a></td><td class="tag-description-column">Quantity of contracts ordered.</td>
+</tr>
+<tr id="tag_39">
+<td class="tag-column">39</td><td class="tag-name-column">OrdStatus</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Identifies current status of order.  
+LMAX supported values: 
+  0 = New
+  1 = Partially filled
+  2 = Filled
+  4 = Canceled
+  8 = Rejected
+</td>
+</tr>
+<tr id="tag_40">
+<td class="tag-column">40</td><td class="tag-name-column">OrdType</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Order type.
+LMAX Supported values:  
+  1 = Market
+  2 = Limit
+  3 = Stop
+  4 = Stop Limit</td>
+</tr>
+<tr id="tag_41">
+<td class="tag-column">41</td><td class="tag-name-column">OrigClOrdID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">ClOrdID of the previous order. Used to identify the previous order in cancel and cancel/replace requests.
+</td>
+</tr>
+<tr id="tag_43">
+<td class="tag-column">43</td><td class="tag-name-column">PossDupFlag</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Indicates possible retransmission of message with this sequence number
+Valid values:
+  Y = Possible duplicate
+  N = Original transmission
+</td>
+</tr>
+<tr id="tag_44">
+<td class="tag-column">44</td><td class="tag-name-column">Price</td><td class="datatype-column"><a href="#datatype_Price">Price</a></td><td class="tag-description-column">Price per unit of quantity
+</td>
+</tr>
+<tr id="tag_45">
+<td class="tag-column">45</td><td class="tag-name-column">RefSeqNum</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">Reference message sequence number</td>
+</tr>
+<tr id="tag_48">
+<td class="tag-column">48</td><td class="tag-name-column">SecurityID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">LMAX Security identifier. Requires SecurityIDSource=8.</td>
+</tr>
+<tr id="tag_49">
+<td class="tag-column">49</td><td class="tag-name-column">SenderCompID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Assigned value used to identify firm sending message.</td>
+</tr>
+<tr id="tag_52">
+<td class="tag-column">52</td><td class="tag-name-column">SendingTime</td><td class="datatype-column"><a href="#datatype_UTCTimestamp">UTCTimestamp</a></td><td class="tag-description-column">Time of message transmission (always expressed in UTC (Universal Time Coordinated, also known as &ldquo;GMT&rdquo;)</td>
+</tr>
+<tr id="tag_54">
+<td class="tag-column">54</td><td class="tag-name-column">Side</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Side of the order.
+Valid values:
+  1 = Buy
+  2 = Sell</td>
+</tr>
+<tr id="tag_55">
+<td class="tag-column">55</td><td class="tag-name-column">Symbol</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Ticker symbol
+		</td>
+</tr>
+<tr id="tag_56">
+<td class="tag-column">56</td><td class="tag-name-column">TargetCompID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Assigned value used to identify receiving firm.</td>
+</tr>
+<tr id="tag_58">
+<td class="tag-column">58</td><td class="tag-name-column">Text</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Free format text string (Note: this field does not have a specified maximum length)</td>
+</tr>
+<tr id="tag_59">
+<td class="tag-column">59</td><td class="tag-name-column">TimeInForce</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Specifies how long the order remains in effect.
+Valid values:
+  0 = Day (trading session)
+  1 = Good Till Cancel  (GTC)
+  3 = Immediate or Cancel  (IOC)
+  4 = Fill or Kill  (FOK)
+</td>
+</tr>
+<tr id="tag_60">
+<td class="tag-column">60</td><td class="tag-name-column">TransactTime</td><td class="datatype-column"><a href="#datatype_UTCTimestamp">UTCTimestamp</a></td><td class="tag-description-column">Time of execution/order creation (expressed in UTC (Universal Time Coordinated, also known as &ldquo;GMT&rdquo;)</td>
+</tr>
+<tr id="tag_64">
+<td class="tag-column">64</td><td class="tag-name-column">SettlDate</td><td class="datatype-column"><a href="#datatype_LocalMktDate">LocalMktDate</a></td><td class="tag-description-column">Specific date of trade settlement (SettlementDate) in YYYYMMDD format.</td>
+</tr>
+<tr id="tag_75">
+<td class="tag-column">75</td><td class="tag-name-column">TradeDate</td><td class="datatype-column"><a href="#datatype_LocalMktDate">LocalMktDate</a></td><td class="tag-description-column">Indicates date of trade referenced in this message in YYYYMMDD format.  Absence of this field indicates current day (expressed in local time at place of trade).</td>
+</tr>
+<tr id="tag_89">
+<td class="tag-column">89</td><td class="tag-name-column">Signature</td><td class="datatype-column"><a href="#datatype_data">data</a></td><td class="tag-description-column">Electronic signature</td>
+</tr>
+<tr id="tag_93">
+<td class="tag-column">93</td><td class="tag-name-column">SignatureLength</td><td class="datatype-column"><a href="#datatype_Length">Length</a></td><td class="tag-description-column">Number of bytes in signature field.</td>
+</tr>
+<tr id="tag_95">
+<td class="tag-column">95</td><td class="tag-name-column">RawDataLength</td><td class="datatype-column"><a href="#datatype_Length">Length</a></td><td class="tag-description-column">Number of bytes in raw data field.</td>
+</tr>
+<tr id="tag_96">
+<td class="tag-column">96</td><td class="tag-name-column">RawData</td><td class="datatype-column"><a href="#datatype_data">data</a></td><td class="tag-description-column">Unformatted raw data, can include bitmaps, word processor documents, etc.</td>
+</tr>
+<tr id="tag_97">
+<td class="tag-column">97</td><td class="tag-name-column">PossResend</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Indicates that message may contain information that has been sent under another sequence number.
+Valid Values:
+ Y=Possible resend
+ N=Original transmission
+ 
+LMAX will never populate this tag with any value other than 'N' on messages sent by LMAX.
+LMAX will ignore this tag on any messages received by LMAX and the treat the message as having been sent with PossResend='N'.
+</td>
+</tr>
+<tr id="tag_98">
+<td class="tag-column">98</td><td class="tag-name-column">EncryptMethod</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Method of encryption.
+Valid values:
+  0 = None / other
+
+LMAX does not support encryption at the FIX layer. All messages are sent over an SSL encrypted connection. Supported values:</td>
+</tr>
+<tr id="tag_99">
+<td class="tag-column">99</td><td class="tag-name-column">StopPx</td><td class="datatype-column"><a href="#datatype_Price">Price</a></td><td class="tag-description-column">Price per unit of quantity (e.g. per share)
+        </td>
+</tr>
+<tr id="tag_100">
+<td class="tag-column">100</td><td class="tag-name-column">ExDestination</td><td class="datatype-column"><a href="#datatype_Exchange">Exchange</a></td><td class="tag-description-column">Execution destination as defined by LMAX when order is entered.</td>
+</tr>
+<tr id="tag_102">
+<td class="tag-column">102</td><td class="tag-name-column">CxlRejReason</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Code to identify reason for cancel rejection.
+Valid values:
+  1 = Unknown order
+  2 = Broker / Exchange Option
+  6 = Duplicate ClOrdID(11) received (only for Order Cancel Replace Request)
+</td>
+</tr>
+<tr id="tag_103">
+<td class="tag-column">103</td><td class="tag-name-column">OrdRejReason</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Code to identify reason for order rejection.
+Valid values:
+  0 = Broker / Exchange option
+  1 = Unknown symbol
+  2 = Exchange closed
+  3 = Order exceeds limit
+  4 = Too late to enter
+  5 = Unknown Order
+  6 = Duplicate Order (e.g. duplicate ClOrdID ())
+  7 = Duplicate of a verbally communicated order
+  8 = Stale Order
+  9 = Trade Along required
+  10 = Invalid Investor ID
+  11 = Unsupported order characteristic
+  12 = Surveillence Option
+  13 = Incorrect quantity
+  14 = Incorrect allocated quantity
+  15 = Unknown account(s)
+  99 = Other
+
+Note: Values 3, 4, and 5 will be used when rejecting an order due to pre-allocation information errors.
+</td>
+</tr>
+<tr id="tag_108">
+<td class="tag-column">108</td><td class="tag-name-column">HeartBtInt</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Heartbeat interval (seconds) 
+</td>
+</tr>
+<tr id="tag_112">
+<td class="tag-column">112</td><td class="tag-name-column">TestReqID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Identifier included in Test Request message to be returned in resulting Heartbeat
+</td>
+</tr>
+<tr id="tag_122">
+<td class="tag-column">122</td><td class="tag-name-column">OrigSendingTime</td><td class="datatype-column"><a href="#datatype_UTCTimestamp">UTCTimestamp</a></td><td class="tag-description-column">Original time of message transmission (always expressed in UTC (Universal Time Coordinated, also known as &ldquo;GMT&rdquo;) when transmitting orders as the result of a resend request.
+</td>
+</tr>
+<tr id="tag_123">
+<td class="tag-column">123</td><td class="tag-name-column">GapFillFlag</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Indicates that the Sequence Reset message is replacing administrative or application messages which will not be resent.
+Valid values:
+  Y = Gap Fill message, MsgSeqNum field valid
+  N = Sequence Reset, ignore MsgSeqNum
+</td>
+</tr>
+<tr id="tag_141">
+<td class="tag-column">141</td><td class="tag-name-column">ResetSeqNumFlag</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Indicates that the both sides of the FIX session should reset sequence numbers.
+Valid values:
+  Y = Yes, reset sequence numbers
+  N = No
+</td>
+</tr>
+<tr id="tag_146">
+<td class="tag-column">146</td><td class="tag-name-column">NoRelatedSym</td><td class="datatype-column"><a href="#datatype_NumInGroup">NumInGroup</a></td><td class="tag-description-column">Specifies the number of repeating symbols specified.</td>
+</tr>
+<tr id="tag_150">
+<td class="tag-column">150</td><td class="tag-name-column">ExecType</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Describes the specific ExecutionRpt (i.e. Pending Cancel) while OrdStatus (39) will always identify the current order status (i.e. Partially Filled) 
+Valid values: 
+  0 = New
+  4 = Canceled
+  5 = Replace
+  8 = Rejected
+  F = Trade (partial fill or fill)
+  I = Order Status
+</td>
+</tr>
+<tr id="tag_151">
+<td class="tag-column">151</td><td class="tag-name-column">LeavesQty</td><td class="datatype-column"><a href="#datatype_Qty">Qty</a></td><td class="tag-description-column">Quantity open for further execution. If the OrdStatus (39) is Canceled or Rejected (in which case the order is no longer active) then LeavesQty could be 0, otherwise LeavesQty = OrderQty (38) &ndash; CumQty (4).
+</td>
+</tr>
+<tr id="tag_263">
+<td class="tag-column">263</td><td class="tag-name-column">SubscriptionRequestType</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Subscription Request Type
+LMAX supported values:
+  0 = Snapshot</td>
+</tr>
+<tr id="tag_354">
+<td class="tag-column">354</td><td class="tag-name-column">EncodedTextLen</td><td class="datatype-column"><a href="#datatype_Length">Length</a></td><td class="tag-description-column">Unused by LMAX. Byte length of encoded (non-ASCII characters) EncodedText (355) field.</td>
+</tr>
+<tr id="tag_355">
+<td class="tag-column">355</td><td class="tag-name-column">EncodedText</td><td class="datatype-column"><a href="#datatype_data">data</a></td><td class="tag-description-column">Unused by LMAX. Encoded (non-ASCII characters) representation of the Text (58) field in the encoded format specified via the MessageEncoding (347) field. If used, the ASCII (English) representation should also be specified in the Text field.</td>
+</tr>
+<tr id="tag_371">
+<td class="tag-column">371</td><td class="tag-name-column">RefTagID</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">The tag number of the FIX field being referenced.
+</td>
+</tr>
+<tr id="tag_372">
+<td class="tag-column">372</td><td class="tag-name-column">RefMsgType</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">The MsgType (35) of the FIX message being referenced.
+</td>
+</tr>
+<tr id="tag_373">
+<td class="tag-column">373</td><td class="tag-name-column">SessionRejectReason</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Code to identify reason for a session-level Reject message.
+Valid values:
+  0 = Invalid tag number
+  1 = Required tag missing
+  2 = Tag not defined for this message type
+  3 = Undefined Tag
+  4 = Tag specified without a value
+  5 = Value is incorrect (out of range) for this tag
+  6 = Incorrect data format for value
+  7 = Decryption problem
+  8 = Signature problem
+  9 = CompID problem
+  10 = SendingTime accuracy problem
+  11 = Invalid MsgType
+  12 = XML Validation error
+  13 = Tag appears more than once
+  14 = Tag specified out of required order 
+  15 = Repeating group fields out of order
+  16 = Incorrect NumInGroup count for repeating group
+  17 = Non &ldquo;data&rdquo; value includes field delimiter (SOH character) 
+  99 = Other
+</td>
+</tr>
+<tr id="tag_383">
+<td class="tag-column">383</td><td class="tag-name-column">MaxMessageSize</td><td class="datatype-column"><a href="#datatype_Length">Length</a></td><td class="tag-description-column">Maximum number of bytes supported for a single message.</td>
+</tr>
+<tr id="tag_384">
+<td class="tag-column">384</td><td class="tag-name-column">NoMsgTypes</td><td class="datatype-column"><a href="#datatype_NumInGroup">NumInGroup</a></td><td class="tag-description-column">Number of MsgTypes (35) in repeating group.
+</td>
+</tr>
+<tr id="tag_385">
+<td class="tag-column">385</td><td class="tag-name-column">MsgDirection</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Specifies the direction of the messsage.
+Valid values:
+  S = Send
+  R = Receive
+</td>
+</tr>
+<tr id="tag_434">
+<td class="tag-column">434</td><td class="tag-name-column">CxlRejResponseTo</td><td class="datatype-column"><a href="#datatype_char">char</a></td><td class="tag-description-column">Identifies the type of request that a Cancel Reject is in response to.
+LMAX Supported values:
+  1 = Order Cancel Request (F)
+  2 = Order Cancel/Replace Request (G)
+</td>
+</tr>
+<tr id="tag_464">
+<td class="tag-column">464</td><td class="tag-name-column">TestMessageIndicator</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Not supported by LMAX.</td>
+</tr>
+<tr id="tag_527">
+<td class="tag-column">527</td><td class="tag-name-column">SecondaryExecID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Execution ID as generated by the MTF. Currently, this is only populated for Executions reporting a Trade where this will be a 16 character string. For other Executions (New, Cancel, Replace etc) this will be set to 0.</td>
+</tr>
+<tr id="tag_552">
+<td class="tag-column">552</td><td class="tag-name-column">NoSides</td><td class="datatype-column"><a href="#datatype_NumInGroup">NumInGroup</a></td><td class="tag-description-column">Number of Side repeating group instances.  
+Valid values:
+1 = one side
+2 = both sides
+</td>
+</tr>
+<tr id="tag_553">
+<td class="tag-column">553</td><td class="tag-name-column">Username</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">LMAX username. <b xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">This is required on the login message sent by the client</b></td>
+</tr>
+<tr id="tag_554">
+<td class="tag-column">554</td><td class="tag-name-column">Password</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">LMAX Password or passphrase. <b>This is required on the login message sent by the client</b></td>
+</tr>
+<tr id="tag_568">
+<td class="tag-column">568</td><td class="tag-name-column">TradeRequestID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Trade Capture Report Request ID. String with maximum length of 16 ASCII characters. Must be unique while a request is active. For example &amp;%^aUk1-\+4rk;!p</td>
+</tr>
+<tr id="tag_569">
+<td class="tag-column">569</td><td class="tag-name-column">TradeRequestType</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Type of Trade Capture Report.
+LMAX supported values:
+  1 = Matched trades matching Criteria provided on request</td>
+</tr>
+<tr id="tag_580">
+<td class="tag-column">580</td><td class="tag-name-column">NoDates</td><td class="datatype-column"><a href="#datatype_NumInGroup">NumInGroup</a></td><td class="tag-description-column">Number of Date fields provided in date range</td>
+</tr>
+<tr id="tag_702">
+<td class="tag-column">702</td><td class="tag-name-column">NoPositions</td><td class="datatype-column"><a href="#datatype_NumInGroup">NumInGroup</a></td><td class="tag-description-column">Number of position entries. </td>
+</tr>
+<tr id="tag_703">
+<td class="tag-column">703</td><td class="tag-name-column">PosType</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Used to identify the type of quantity that is being returned. Valid values: TQ = Transaction Quantity IAS = Intra-Spread Qty IES = Inter-Spread Qty FIN = End-of-Day Qty SOD = Start-of-Day Qty EX = Option Exercise Qty AS = Option Assignment TX = Transaction from Exercise TA = Transaction from Assignment PIT = Pit Trade Qty TRF = Transfer Trade Qty ETR = Electronic Trade Qty ALC = Allocation Trade Qty PA = Adjustment Qty ASF = As-of Trade Qty DLV = Delivery Qty TOT = Total Transaction Qty XM = Cross Margin Qty SPL = Integral Split </td>
+</tr>
+<tr id="tag_704">
+<td class="tag-column">704</td><td class="tag-name-column">LongQty</td><td class="datatype-column"><a href="#datatype_Qty">Qty</a></td><td class="tag-description-column">Long Quantity </td>
+</tr>
+<tr id="tag_705">
+<td class="tag-column">705</td><td class="tag-name-column">ShortQty</td><td class="datatype-column"><a href="#datatype_Qty">Qty</a></td><td class="tag-description-column">Short Quantity </td>
+</tr>
+<tr id="tag_710">
+<td class="tag-column">710</td><td class="tag-name-column">PosReqID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Unique identifier for the position maintenance request as assigned by the submitter </td>
+</tr>
+<tr id="tag_721">
+<td class="tag-column">721</td><td class="tag-name-column">PosMaintRptID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Unique identifier for this position report </td>
+</tr>
+<tr id="tag_728">
+<td class="tag-column">728</td><td class="tag-name-column">PosReqResult</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Result of Request for Position Valid values: 0 = Valid Request = Invalid or unsupported Request 2 = No positions found that match criteria 3 = Not authorized to request positions 4 = Request for Position not supported 99=Other (use Text(58) in conjunction with this code for an explanation) 4000+ Reserved and available for bi-laterally agreed upon user-defined values </td>
+</tr>
+<tr id="tag_748">
+<td class="tag-column">748</td><td class="tag-name-column">TotNumTradeReports</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Total number of trade reports returned. Will only be set when no trades were found for the requested criteria when it's value will be 0.</td>
+</tr>
+<tr id="tag_749">
+<td class="tag-column">749</td><td class="tag-name-column">TradeRequestResult</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Result of Trade Request
+LMAX Supported values:
+  0 = Successful (Default)
+  99 = Other</td>
+</tr>
+<tr id="tag_750">
+<td class="tag-column">750</td><td class="tag-name-column">TradeRequestStatus</td><td class="datatype-column"><a href="#datatype_int">int</a></td><td class="tag-description-column">Status of Trade Request.
+LMAX Supported values:
+  0 = Accepted
+  2 = Rejected</td>
+</tr>
+<tr id="tag_789">
+<td class="tag-column">789</td><td class="tag-name-column">NextExpectedMsgSeqNum</td><td class="datatype-column"><a href="#datatype_SeqNum">SeqNum</a></td><td class="tag-description-column">Not supported by LMAX.</td>
+</tr>
+<tr id="tag_790">
+<td class="tag-column">790</td><td class="tag-name-column">OrdStatusReqID</td><td class="datatype-column"><a href="#datatype_String">String</a></td><td class="tag-description-column">Can be used to uniquely identify a specific Order Status Request message.</td>
+</tr>
+<tr id="tag_912">
+<td class="tag-column">912</td><td class="tag-name-column">LastRptRequested</td><td class="datatype-column"><a href="#datatype_Boolean">Boolean</a></td><td class="tag-description-column">Indicates whether this message is that last report message in response to a request, such as Order Mass Status Request.
+  Y = Last message
+  N = Not last message</td>
+</tr>
+<tr id="tag_1089">
+<td class="tag-column">1089</td><td class="tag-name-column">MatchIncrement</td><td class="datatype-column"><a href="#datatype_Qty">Qty</a></td><td class="tag-description-column">Allows orders to specify a minimum quantity that applies to every execution</td>
+</tr>
+</table>
+<h2>Data Types</h2>
+<table class="default-table" id="data-types-table">
+<tr>
+<th class="datatype-column">Data Type</th><th class="datatype-description-column">Description</th>
+</tr>
+<tr id="datatype_Boolean">
+<td class="datatype-column">Boolean</td><td class="datatype-description-column">char field containing one of two values: 'Y' = True/Yes 'N' = False/No</td>
+</tr>
+<tr id="datatype_char">
+<td class="datatype-column">char</td><td class="datatype-description-column">Char value, can include any alphanumeric character or punctuation except the delimiter. All char fields are case sensitive (i.e. l != L).</td>
+</tr>
+<tr id="datatype_data">
+<td class="datatype-column">data</td><td class="datatype-description-column">Binary (non-ASCII) data.</td>
+</tr>
+<tr id="datatype_int">
+<td class="datatype-column">int</td><td class="datatype-description-column">Sequence of digits without commas or decimals and optional sign character (ASCII characters - and 0 - 9). The sign character utilizes one byte (i.e. positive int is 99999 while negative int is -99999). Note that int values may contain leading zeros (e.g. 00023 = 23).</td>
+</tr>
+<tr id="datatype_Length">
+<td class="datatype-column">Length</td><td class="datatype-description-column">Representing the length in bytes. Value must be positive.</td>
+</tr>
+<tr id="datatype_NumInGroup">
+<td class="datatype-column">NumInGroup</td><td class="datatype-description-column">Value that represents the number of repeating values in a group.</td>
+</tr>
+<tr id="datatype_Price">
+<td class="datatype-column">Price</td><td class="datatype-description-column">Value representing a price. Note the number of decimal places may vary.</td>
+</tr>
+<tr id="datatype_Qty">
+<td class="datatype-column">Qty</td><td class="datatype-description-column">Value capable of storing either a whole number (no decimal places) of shares (securities denominated in whole units) or a decimal value containing decimal places for non-share quantity asset classes (securities denominated in fractional units).</td>
+</tr>
+<tr id="datatype_SeqNum">
+<td class="datatype-column">SeqNum</td><td class="datatype-description-column">Representing a message sequence number. Value must be positive.</td>
+</tr>
+<tr id="datatype_String">
+<td class="datatype-column">String</td><td class="datatype-description-column">Alpha-numeric free format strings; can include any character or punctuation except the delimiter. All char fields are case sensitive (i.e. lmax != LMAX).</td>
+</tr>
+<tr id="datatype_UTCTimestamp">
+<td class="datatype-column">UTCTimestamp</td><td class="datatype-description-column">Representing Time/date combination represented in UTC (Universal Time Coordinated, also known as  GMT ) only accepted in this format : YYYYMMDD-HH:MM:SS (whole seconds). For example 20120321-17:15:03.</td>
+</tr>
+</table>
+</body>
+</html>

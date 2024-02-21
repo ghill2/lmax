@@ -1,0 +1,2 @@
+8=FIX.4.4|9=158|35=9|49=LMXBD|56=ghill2|34=3|52=20230915-11:25:59.450|1=1649599582|11=af59ec8b014b305b|41=e5756d7e-4926-4938-8|37=NONE|39=0|102=2|434=2|58=QUANTITY_NOT_VALID|10=217
+# An `OrderCancelReject` message sent in respose to a `OrderCancelReplaceRequest` message when modifying an order

@@ -1,0 +1,33 @@
+<events>
+        <header>
+                <seq>0</seq>
+        </header>
+                <body>
+                <positions>
+                        <page>
+                        <position>
+                                <accountId>001</accountId>
+                                <instrumentId>100934</instrumentId>
+                                <valuation>-396.1964</valuation>
+                                <shortUnfilledCost>0</shortUnfilledCost>
+                                <longUnfilledCost>0</longUnfilledCost>
+                                <openQuantity>0.04</openQuantity>
+                                <cumulativeCost>1179.0983</cumulativeCost>
+                                <openCost>1171.3796</openCost>
+                        </position>
+                        <position>
+                                <accountId>001</accountId>
+                                <instrumentId>100932</instrumentId>
+                                <valuation>-396.1964</valuation>
+                                <shortUnfilledCost>0</shortUnfilledCost>
+                                <longUnfilledCost>0</longUnfilledCost>
+                                <openQuantity>-0.03</openQuantity>
+                                <cumulativeCost>1172.0983</cumulativeCost>
+                                <openCost>1171.3726</openCost>
+                        </position>
+                        </page>
+                        <hasMoreResults>false</hasMoreResults>
+                        <correlationId>-1</correlationId>
+                </positions>
+        </body>
+</events>

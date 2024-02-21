@@ -1,0 +1,2 @@
+8=FIX.4.4|9=73|35=A|49=LMXBDM|56=ghill2|34=1|52=20230915-10:29:07.798|98=0|108=30|141=Y|10=068
+#response sent to a `Logon` message when the logon was successful

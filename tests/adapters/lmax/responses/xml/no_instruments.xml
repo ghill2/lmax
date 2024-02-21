@@ -1,0 +1,9 @@
+<res>
+        <header>
+                <status>OK</status>
+        </header>
+        <body>
+                <instruments/>
+                <hasMoreResults>false</hasMoreResults>
+        </body>
+</res>

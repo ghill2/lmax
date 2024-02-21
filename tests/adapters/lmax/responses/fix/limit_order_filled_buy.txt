@@ -1,0 +1,2 @@
+8=FIX.4.4|9=274|35=8|49=LMXBD|56=ghill2|34=3|52=20230915-10:48:49.193|1=1649599582|11=0e704426-d7cf-4eb3-a|48=100934|22=8|54=1|37=AACkAgAAAABD0y1W|59=1|44=26627.26|40=2|60=20230915-10:48:49.193|6=26627.25|17=YlLkXgAAAAB5UzWi|527=QCSAEAAACNNJTCCL|38=1|39=2|150=F|14=1|151=0|32=1|31=26627.25|10=245
+`ExecutionReport` message sent in response to a `SubmitOrderSingle` message for a non-partial buy limit order fill

@@ -1,0 +1,2 @@
+8=FIX.4.4|9=214|35=8|49=LMXBD|56=ghill2|34=2|52=20230918-16:07:00.514|14=0|151=0|38=0|17=0|527=0|22=8|48=100934|6=0|54=1|60=20230918-16:07:00.514|39=8|37=0|150=I|1=1649599582|103=5|58=UNKNOWN ORDER|11=unknown|790=630eed65972e3e5e|10=053
+# response sent when an `OrderStatusRequest` message has a client order id that is unknown to the exchange

@@ -1,0 +1,2 @@
+8=FIX.4.4|9=162|35=9|49=LMXBD|56=ghill2|34=4|52=20230915-11:18:40.853|1=1649599582|11=4b2b54e30b9b1683|41=cd8aef86-72ef-4d8f-b|37=NONE|39=0|102=2|434=2|58=EXPOSURE_CHECK_FAILURE|10=187
+# An `OrderCancelReject` message sent in respose to a `OrderCancelReplaceRequest` message when modifying an order
